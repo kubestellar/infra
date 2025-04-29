@@ -5,20 +5,17 @@
 # trigger will make sure that test jobs only run on trusted PRs
 triggers:
   - repos:
-      - kcp-dev
       - kubestellar
     only_org_members: true
 
 approve:
   - repos:
-      - kcp-dev
       - kubestellar
     ignore_review_state: true
     require_self_approval: true
 
 lgtm:
   - repos:
-      - kcp-dev
       - kubestellar
     # adds lgtm if GitHub review state is "Approve"
     # and removes lgtm if review state is "Request Changes"
@@ -68,59 +65,6 @@ label:
     - redesign
 
 plugins:
-  kcp-dev:
-    plugins:
-      - approve
-      - assign
-      - branchcleaner
-      - dco
-      - hold
-      - label # adds or removes labels of the type area/*, kind/*, etc
-      - lgtm
-      - lifecycle # allows to close or open issues for non-members, mark issues and PRs as stale, etc
-      - milestoneapplier
-      - override
-      - owners-label # automatically adds labels to PRs based on the files they touch; labels are mentioned in the OWNERS file
-      - retitle # /retitle allows to edit the title of a PR (e.g. to remove WIP, when people are on vacation)
-      - size
-      - skip # /skip cleans up commit statuses of non-blocking presubmits on PRs
-      - transfer-issue # /transfer[-issue] <repo name in same org> transfers GitHub issue to dest. repo
-      - trigger
-      - verify-owners # verifies format of OWNERS file
-      - wip
-
-  kcp-dev/kcp:
-    plugins:
-      - release-note
-      - require-matching-label
-
-  kcp-dev/api-syncagent:
-    plugins:
-      - release-note
-      - require-matching-label
-
-  kcp-dev/kcp-operator:
-    plugins:
-      - release-note
-      - require-matching-label
-
-  kcp-dev/logicalcluster:
-    plugins:
-      - release-note
-
-  kcp-dev/multicluster-provider:
-    plugins:
-      - release-note
-      - require-matching-label
-
-  kcp-dev/generic-controlplane:
-    plugins:
-      - release-note
-
-  kcp-dev/infra:
-    plugins:
-      - config-updater # updates prow configuration
-
   kubestellar:
     plugins:
       - approve
@@ -143,40 +87,12 @@ plugins:
 
 require_matching_label:
   - missing_label: do-not-merge/needs-kind
-    org: kcp-dev
-    repo: kcp
-    prs: true
-    regexp: ^kind/
-  - missing_label: do-not-merge/needs-kind
-    org: kcp-dev
-    repo: api-syncagent
-    prs: true
-    regexp: ^kind/
-  - missing_label: do-not-merge/needs-kind
-    org: kcp-dev
-    repo: kcp-operator
-    prs: true
-    regexp: ^kind/
-  - missing_label: do-not-merge/needs-kind
-    org: kcp-dev
-    repo: kcp-operator
-    prs: true
-    regexp: ^kind/
-  - missing_label: do-not-merge/needs-kind
-    org: kcp-dev
-    repo: multicluster-provider
+    org: kubestellar
+    repo: kubestellar
     prs: true
     regexp: ^kind/
 
 external_plugins:
-  kcp-dev:
-    - name: needs-rebase
-      events:
-        - pull_request
-    - name: cherrypicker
-      events:
-        - issue_comment
-        - pull_request
   kubestellar:
     - name: needs-rebase
       events:
@@ -188,6 +104,6 @@ external_plugins:
 
 owners:
   filenames:
-    kcp-dev/controller-runtime:
+    kubestellar/controller-runtime:
       owners: DOWNSTREAM_OWNERS
       owners_aliases: DOWNSTREAM_OWNERS_ALIASES
