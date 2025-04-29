@@ -1,10 +1,10 @@
 # infra
 
-This repository contains tools and configuration files for the testing and automation needs of the `kcp-dev` an `kubestellar` organizations.
+This repository contains tools and configuration files for the testing and automation needs of the `kubestellar` organizations.
 
 ## Prow (CI)
 
-There are 2 Kubernetes clusters that make up the Prow CI system for kcp.
+There is 1 Kubernetes cluster that make up the Prow CI system for kubestellar.
 
 * The `prow` cluster holds Prow itself (Deck, Horologium, Sinker, Plank, ...), but besides a few exceptions, no actual Prow jobs are executed here. This cluster is separated from the other to make sure some sensitive secrets (like the Github token) are not available to "random" Prow jobs that could just `echo` and steal it.
 * The `build` cluster is where most of the Prow jobs are executed. This cluster is auto-scaling and holds nothing but the Prow jobs.
