@@ -8,7 +8,7 @@ terraform {
 
   # make sure to set AWS_ENDPOINT_URL_S3 to 'https://<object namespace>.compat.objectstorage.us-sanjose-1.oraclecloud.com'.
   backend "s3" {
-    bucket = "kcp-opentofu-state"
+    bucket = "kubestellar-opentofu-state"
     region = "us-sanjose-1"
     key    = "ci-prow-worker/tf.tfstate"
 
