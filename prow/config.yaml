@@ -4,7 +4,7 @@ pod_namespace: "default"
 
 # If a repository contains open source code, consider adding it to
 # plank.report_templates, plank.job_url_prefix_config and plank.default_decoration_config_entries
-# to generate links to public-prow.kcp.k8c.io, which does not require
+# to generate links to prow2.kubestellar.io, which does not require
 # authentication.
 
 plank:
@@ -13,11 +13,11 @@ plank:
 
   report_templates:
     "*": "[Full PR test history](https://prow.kcp.k8c.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
-    "kubestellar/kubestellar": "[Full PR test history](https://public-prow.kcp.k8c.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
+    "kubestellar/kubestellar": "[Full PR test history](https://prow2.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
 
   job_url_prefix_config:
     "*": https://prow.kcp.k8c.io/view/
-    "kubestellar/kubestellar": "https://public-prow.kcp.k8c.io/view/"
+    "kubestellar/kubestellar": "https://prow2.kubestellar.io/view/"
 
   default_decoration_config_entries:
     # default config
@@ -58,7 +58,7 @@ sinker:
   max_prowjob_age: 672h
 
 deck:
-  # repositories hidden in public-prow, but internal prow ignores this list and shows all repos
+  # repositories hidden in prow2.kubestellar.io, but internal prow ignores this list and shows all repos
   hidden_repos: []
   rerun_auth_configs:
     "*":
@@ -135,9 +135,9 @@ tide:
 
 branch-protection:
   orgs:
-    kcp-dev:
+    kubestellar:
       repos:
-        kcp:
+        kubestellar:
           protect: true
           required_status_checks:
             contexts:
@@ -145,138 +145,7 @@ branch-protection:
           restrictions:
             users: []
             teams:
-              - kcp-dev/kcp-admins
-          include:
-            - "^main$"
-            - "^release-.+$"
-        kcp-operator:
-          protect: true
-          required_status_checks:
-            contexts:
-              - dco
-          restrictions:
-            users: []
-            teams:
-              - kcp-dev/kcp-admins
-          include:
-            - "^main$"
-            - "^release-.+$"
-        api-syncagent:
-          protect: true
-          required_status_checks:
-            contexts:
-              - dco
-          restrictions:
-            users: []
-            teams:
-              - kcp-dev/kcp-admins
-          include:
-            - "^main$"
-            - "^release-.+$"
-        helm-charts:
-          protect: true
-          required_status_checks:
-            contexts:
-              - dco
-          restrictions:
-            users: []
-            teams:
-              - kcp-dev/kcp-admins
-          include:
-            - "^main$"
-        infra:
-          protect: true
-          required_status_checks:
-            contexts:
-              - dco
-          restrictions:
-            users: []
-            teams:
-              - kcp-dev/kcp-admins
-          include:
-            - "^main$"
-        multicluster-provider:
-          protect: true
-          required_status_checks:
-            contexts:
-              - dco
-          restrictions:
-            users: []
-            teams:
-              - kcp-dev/kcp-admins
-          include:
-            - "^main$"
-            - "^release-.+$"
-        kcp.io:
-          protect: true
-          required_status_checks:
-            contexts:
-              - dco
-          restrictions:
-            users: []
-            teams:
-              - kcp-dev/kcp-admins
-          include:
-            - "^main$"
-        client-go:
-          protect: true
-          required_status_checks:
-            contexts:
-              - dco
-          restrictions:
-            users: []
-            teams:
-              - kcp-dev/kcp-admins
-          include:
-            - "^main$"
-            - "^release-.+$"
-            - "^kcp-.+$"
-        code-generator:
-          protect: true
-          required_status_checks:
-            contexts:
-              - dco
-          restrictions:
-            users: []
-            teams:
-              - kcp-dev/kcp-admins
-          include:
-            - "^main$"
-            - "^release-.+$"
-            - "^kcp-.+$"
-        apimachinery:
-          protect: true
-          required_status_checks:
-            contexts:
-              - dco
-          restrictions:
-            users: []
-            teams:
-              - kcp-dev/kcp-admins
-          include:
-            - "^main$"
-            - "^release-.+$"
-            - "^kcp-.+$"
-        kubernetes:
-          protect: true
-          required_status_checks:
-            contexts:
-              - dco
-          restrictions:
-            users: []
-            teams:
-              - kcp-dev/kcp-admins
-          include:
-            - "^kcp-.+$"
-        logicalcluster:
-          protect: true
-          required_status_checks:
-            contexts:
-              - dco
-          restrictions:
-            users: []
-            teams:
-              - kcp-dev/kcp-admins
+              - kubestellar/kubestellar-admins
           include:
             - "^main$"
             - "^release-.+$"
@@ -331,12 +200,12 @@ presets:
   - labels:
       preset-ghcr-credentials: "true"
     env:
-      - name: KCP_GHCR_USERNAME
+      - name: KUBESTELLAR_GHCR_USERNAME
         valueFrom:
           secretKeyRef:
             name: ghcr-credentials
             key: username
-      - name: KCP_GHCR_PASSWORD
+      - name: KUBESTELLAR_GHCR_PASSWORD
         valueFrom:
           secretKeyRef:
             name: ghcr-credentials
