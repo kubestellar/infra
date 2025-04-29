@@ -1,6 +1,6 @@
-# kcp-dev/infra/build
+# kubestellar/infra/build
 
-This directory contains files to build `ghcr.io/kcp-dev/infra/build`, the base image used for kcp's Prow jobs. It includes the following tools:
+This directory contains files to build `ghcr.io/kubestellar/infra/build`, the base image used for kubestellar's Prow jobs. It includes the following tools:
 
 - `docker` (and `/usr/local/bin/start-docker.sh` to start it)
 - `kind` (and pre-loaded `/kindest.tar` that can be loaded into docker to have `kindest/node` available)
