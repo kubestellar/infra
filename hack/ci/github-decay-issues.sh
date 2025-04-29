@@ -12,13 +12,7 @@ if [ -z "${GITHUB_TOKEN_FILE:-}" ]; then
 fi
 
 # this will be added to every search query
-baseQuery='repo:kcp-dev/kcp
-repo:kcp-dev/helm-charts
-repo:kcp-dev/infra
-repo:kcp-dev/controller-runtime
-repo:kcp-dev/controller-runtime-example
-repo:kcp-dev/logicalcluster
-repo:kcp-dev/kcp.io
+baseQuery='repo:kubestellar/kubestellar
 -label:kind/documentation
 -label:kind/feature
 -label:kind/cleanup
