@@ -1,3 +1,3 @@
-# Security Process for KCP
+# Security Process for KubeStellar
 
 TBD
