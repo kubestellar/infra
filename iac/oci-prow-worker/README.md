@@ -31,7 +31,7 @@ oci_compartment_ocid     = "ocid1.compartment.oc1..xxxxxxxxxxxxxxxxxxx"
 oci_region               = "us-sanjose-1"
 node_pool_ssh_public_key = "ssh-rsa "
 oci_auth_type            = "SecurityToken"
-oci_config_file_profile  = "KCP"
+oci_config_file_profile  = "KUBESTELLAR"
 ```
 
 Install `oci` cli and run `oci session authenticate` to get the `oci_config_file` and `oci_profile` values.
