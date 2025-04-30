@@ -12,11 +12,11 @@ plank:
   pod_unscheduled_timeout: 60m
 
   report_templates:
-    "*": "[Full PR test history](https://prow.kcp.k8c.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
+    "*": "[Full PR test history](https://prow2-private.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
     "kubestellar/kubestellar": "[Full PR test history](https://prow2.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
 
   job_url_prefix_config:
-    "*": https://prow.kcp.k8c.io/view/
+    "*": https://prow2-private.kubestellar.io/view/
     "kubestellar/kubestellar": "https://prow2.kubestellar.io/view/"
 
   default_decoration_config_entries:
@@ -112,10 +112,9 @@ github_reporter:
 
 tide:
   pr_status_base_urls:
-    "*": https://prow.kcp.k8c.io/pr
+    "*": https://prow2-private.kubestellar.io/pr
 
   merge_method:
-    kcp-dev: merge
     kubestellar: merge
 
   queries:

@@ -11,5 +11,5 @@ There is 1 Kubernetes cluster that make up the Prow CI system for kubestellar.
 
 To access Prow, there are 2 instances of its UI:
 
-* https://prow.kcp.k8c.io/ is the _internal_ Deck, available only to authenticated users (users part of the `kcp-dev` organization). This deck shows _all_ repositories and offers a way to rerun a Prowjob.
+* https://prow2-private.kubestellar.io/ is the _internal_ Deck, available only to authenticated users (users part of the `kubestellar-dev` organization). This deck shows _all_ repositories and offers a way to rerun a Prowjob.
 * https://prow2.kubestellar.io/ is the _public_ Deck, available to everyone, but read-only.

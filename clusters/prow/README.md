@@ -1,7 +1,7 @@
 # Prow Cluster
 
 This directory contains the manifests for managing the Prow cluster that
-powers the CI/CD system for [kcp](https://github.com/kcp-dev/kcp). This
+powers the CI/CD system for [kubestellar](https://github.com/kubestellar/kubestellar). This
 cluster only contains Prow itself, the build jobs are executed in another
 cluster (`build`).
 

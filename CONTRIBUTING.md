@@ -1,4 +1,4 @@
-# Contributing to kcp
+# Contributing to KubeStellar
 
 We're thrilled that you're interested in contributing to KubeStellar! Please visit our
 [full contributing guide](https://github.com/kubestellar/kubestellar/blob/main/CONTRIBUTING.md) on our documentation site.
