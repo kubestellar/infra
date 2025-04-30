@@ -1,11 +1,11 @@
 postsubmits:
-  kcp-dev/infra:
+  kubestellar/infra:
     - name: post-infra-deploy-prow-cluster
       max_concurrency: 1
       run_if_changed: "clusters/prow/"
       decorate: true
       cluster: prow
-      clone_uri: "ssh://git@github.com/kcp-dev/infra.git"
+      clone_uri: "ssh://git@github.com/kubestellar/infra.git"
       labels:
         preset-prow-kubeconfig: "true"
       branches:
@@ -26,7 +26,7 @@ postsubmits:
       run_if_changed: "clusters/build/"
       decorate: true
       cluster: prow
-      clone_uri: "ssh://git@github.com/kcp-dev/infra.git"
+      clone_uri: "ssh://git@github.com/kubestellar/infra.git"
       labels:
         preset-prow-kubeconfig: "true"
       branches:
@@ -44,7 +44,7 @@ postsubmits:
 
     - name: post-infra-publish-images-1.23-build
       decorate: true
-      clone_uri: "ssh://git@github.com/kcp-dev/infra.git"
+      clone_uri: "ssh://git@github.com/kubestellar/infra.git"
       cluster: prow # GHCR credentials are only available here
       labels:
         preset-ghcr-credentials: "true"
@@ -67,7 +67,7 @@ postsubmits:
 
     - name: post-infra-publish-images-1.24-build
       decorate: true
-      clone_uri: "ssh://git@github.com/kcp-dev/infra.git"
+      clone_uri: "ssh://git@github.com/kubestellar/infra.git"
       cluster: prow # GHCR credentials are only available here
       labels:
         preset-ghcr-credentials: "true"

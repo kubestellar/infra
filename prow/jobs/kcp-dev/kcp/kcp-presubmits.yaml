@@ -1,27 +1,27 @@
 presubmits:
-  kcp-dev/kcp:
+  kubestellar/kcp:
     - name: pull-kcp-validate-prow-yaml
       always_run: true
       decorate: true
-      clone_uri: "ssh://git@github.com/kcp-dev/kcp.git"
+      clone_uri: "ssh://git@github.com/kubestellar/kcp.git"
       extra_refs:
-        - org: kcp-dev
+        - org: kubestellar
           repo: infra
           base_ref: main
-          clone_uri: git@github.com:kcp-dev/infra.git
+          clone_uri: git@github.com:kubestellar/infra.git
       spec:
         containers:
           - image: gcr.io/k8s-prow/checkconfig:v20230919-a4926a4d02
             command:
               - checkconfig
             args:
-              - -plugin-config=/home/prow/go/src/github.com/kcp-dev/infra/prow/plugins.yaml
-              - -config-path=/home/prow/go/src/github.com/kcp-dev/infra/prow/config.yaml
-              - -job-config-path=/home/prow/go/src/github.com/kcp-dev/infra/prow/jobs
+              - -plugin-config=/home/prow/go/src/github.com/kubestellar/infra/prow/plugins.yaml
+              - -config-path=/home/prow/go/src/github.com/kubestellar/infra/prow/config.yaml
+              - -job-config-path=/home/prow/go/src/github.com/kubestellar/infra/prow/jobs
               - -prow-yaml-repo-name=$(REPO_OWNER)/$(REPO_NAME)
     - name: pre-kcp-publish-image
       decorate: true
-      clone_uri: "https://github.com/kcp-dev/kcp"
+      clone_uri: "https://github.com/kubestellar/kcp"
       cluster: prow # GHCR credentials are only available here
       labels:
         preset-ghcr-credentials: "true"

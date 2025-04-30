@@ -204,10 +204,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - 'public-prow.kcp.k8c.io'
+        - 'prow2.kubestellar.io'
       secretName: deck-public-tls
   rules:
-    - host: 'public-prow.kcp.k8c.io'
+    - host: 'prow2.kubestellar.io'
       http:
         paths:
           - path: /

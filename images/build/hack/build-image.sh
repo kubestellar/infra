@@ -31,7 +31,7 @@ location = "$mirror"
 EOF
 fi
 
-repository=ghcr.io/kcp-dev/infra/build
+repository=ghcr.io/kubestellar/infra/build
 architectures="amd64 arm64"
 
 # cd into the desired go-* Docker image

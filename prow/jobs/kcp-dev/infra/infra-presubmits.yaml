@@ -1,23 +1,23 @@
 presubmits:
-  kcp-dev/infra:
+  kubestellar/infra:
     - name: pull-infra-validate-prow-yaml
       always_run: true
       decorate: true
-      clone_uri: "ssh://git@github.com/kcp-dev/infra.git"
+      clone_uri: "ssh://git@github.com/kubestellar/infra.git"
       spec:
         containers:
           - image: gcr.io/k8s-prow/checkconfig:v20230919-a4926a4d02
             command:
               - checkconfig
             args:
-              - -plugin-config=/home/prow/go/src/github.com/kcp-dev/infra/prow/plugins.yaml
-              - -config-path=/home/prow/go/src/github.com/kcp-dev/infra/prow/config.yaml
-              - -job-config-path=/home/prow/go/src/github.com/kcp-dev/infra/prow/jobs
+              - -plugin-config=/home/prow/go/src/github.com/kubestellar/infra/prow/plugins.yaml
+              - -config-path=/home/prow/go/src/github.com/kubestellar/infra/prow/config.yaml
+              - -job-config-path=/home/prow/go/src/github.com/kubestellar/infra/prow/jobs
               - -prow-yaml-repo-name=$(REPO_OWNER)/$(REPO_NAME)
 
     - name: pull-infra-validate-prow-jobs
       decorate: true
-      clone_uri: "ssh://git@github.com/kcp-dev/infra.git"
+      clone_uri: "ssh://git@github.com/kubestellar/infra.git"
       run_if_changed: "prow/jobs/"
       branches:
         - ^main$
@@ -27,9 +27,9 @@ presubmits:
             command:
               - checkconfig
             args:
-              - -plugin-config=/home/prow/go/src/github.com/kcp-dev/infra/prow/plugins.yaml
-              - -config-path=/home/prow/go/src/github.com/kcp-dev/infra/prow/config.yaml
-              - -job-config-path=/home/prow/go/src/github.com/kcp-dev/infra/prow/jobs
+              - -plugin-config=/home/prow/go/src/github.com/kubestellar/infra/prow/plugins.yaml
+              - -config-path=/home/prow/go/src/github.com/kubestellar/infra/prow/config.yaml
+              - -job-config-path=/home/prow/go/src/github.com/kubestellar/infra/prow/jobs
               - -strict
 
     - name: pull-infra-prow-labelsync
@@ -37,7 +37,7 @@ presubmits:
       labels:
         app: label-sync
       decorate: true
-      clone_uri: "ssh://git@github.com/kcp-dev/infra.git"
+      clone_uri: "ssh://git@github.com/kubestellar/infra.git"
       run_if_changed: '^prow/labels.yaml$'
       spec:
         containers:
@@ -45,8 +45,8 @@ presubmits:
           command:
           - label_sync
           args:
-          - --config=/home/prow/go/src/github.com/kcp-dev/infra/prow/labels.yaml
-          - --orgs=kcp-dev
+          - --config=/home/prow/go/src/github.com/kubestellar/infra/prow/labels.yaml
+          - --orgs=kubestellar
           - --token=/etc/oauth-token/token
           - --endpoint=http://ghproxy.prow.svc.cluster.local
           - --endpoint=https://api.github.com

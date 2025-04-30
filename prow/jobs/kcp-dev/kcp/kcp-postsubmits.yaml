@@ -1,8 +1,8 @@
 postsubmits:
-  kcp-dev/kcp:
+  kubestellar/kcp:
     - name: post-kcp-publish-image
       decorate: true
-      clone_uri: "https://github.com/kcp-dev/kcp"
+      clone_uri: "https://github.com/kubestellar/kcp"
       cluster: prow # GHCR credentials are only available here
       labels:
         preset-ghcr-credentials: "true"

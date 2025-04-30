@@ -1,17 +1,17 @@
 presubmits:
-  kcp-dev/kcp:
+  kubestellar/kcp:
     # test job to run e2e test on OCI worker cluster (ARM)
     - name: pull-kcp-test-e2e-sharded-oci
       decorate: true
       optional: true
       always_run: false
-      clone_uri: "https://github.com/kcp-dev/kcp"
+      clone_uri: "https://github.com/kubestellar/kcp"
       labels:
         preset-goproxy: "true"
       cluster: oci-prow-worker
       spec:
         containers:
-          - image: ghcr.io/kcp-dev/infra/build:1.23.7-2
+          - image: ghcr.io/kubestellar/infra/build:1.23.7-2
             command:
               - ./hack/run-with-prow.sh
               - ./hack/run-with-prometheus.sh

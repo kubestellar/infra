@@ -1,11 +1,5 @@
-prowjob_namespace: "prow"
-pod_namespace: "default"
-# log_level: debug
-
-# If a repository contains open source code, consider adding it to
-# plank.report_templates, plank.job_url_prefix_config and plank.default_decoration_config_entries
-# to generate links to prow2.kubestellar.io, which does not require
-# authentication.
+prowjob_namespace: prow
+pod_namespace: test-pods
 
 plank:
   pod_pending_timeout: 60m
@@ -20,28 +14,25 @@ plank:
     "kubestellar/kubestellar": "https://prow2.kubestellar.io/view/"
 
   default_decoration_config_entries:
-    # default config
     - config:
         timeout: 2h
         grace_period: 5m
         utility_images:
-          clonerefs: "gcr.io/k8s-prow/clonerefs:v20230518-c802d8aea4"
-          initupload: "gcr.io/k8s-prow/initupload:v20230518-c802d8aea4"
-          entrypoint: "gcr.io/k8s-prow/entrypoint:v20230518-c802d8aea4"
-          sidecar: "gcr.io/k8s-prow/sidecar:v20230518-c802d8aea4"
+          clonerefs: us-docker.pkg.dev/k8s-infra-prow/images/clonerefs:v20240802-66b115076
+          entrypoint: us-docker.pkg.dev/k8s-infra-prow/images/entrypoint:v20240802-66b115076
+          initupload: us-docker.pkg.dev/k8s-infra-prow/images/initupload:v20240802-66b115076
+          sidecar: us-docker.pkg.dev/k8s-infra-prow/images/sidecar:v20240802-66b115076
         gcs_configuration:
-          bucket: "s3://prow-data"
+          bucket: "s3://prow-logs"
           path_strategy: "explicit"
-        s3_credentials_secret: "s3-credentials-internal"
-        ssh_key_secrets:
-          - kubestellar-ci-bot-ssh-key
-        ssh_host_fingerprints:
-          - github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=
-    - repo: "kubestellar/kubestellar"
-      config:
-        s3_credentials_secret: "s3-credentials-public"
-        gcs_configuration:
-          bucket: "s3://prow-public-data"
+        s3_credentials_secret: "s3-credentials"
+        github_api_endpoints:
+          - http://ghproxy
+          - https://api.github.com
+        github_app_id: "1227751"
+        github_app_private_key_secret:
+          name: github-token
+          key: cert
 
 in_repo_config:
   enabled:
@@ -58,29 +49,13 @@ sinker:
   max_prowjob_age: 672h
 
 deck:
-  # repositories hidden in prow2.kubestellar.io, but internal prow ignores this list and shows all repos
-  hidden_repos: []
-  rerun_auth_configs:
-    "*":
-      allow_anyone: true
   spyglass:
-    # Configuring these will make an "Artifacts" link appear on the Spyglass page, linking
-    # to gcsweb.
-    gcs_browser_prefixes:
-      '*': https://gcsweb.kcp.k8c.io/s3/
-      'kubestellar/kubestellar': https://public-gcsweb.kcp.k8c.io/s3/
-    # required so that public periodics can point to the correct gcsweb
-    # otherwise, gcsweb-public will just redirect to Google Cloud Console
-    # instead of showing artifacts
-    gcs_browser_prefixes_by_bucket:
-      '*': https://gcsweb.kcp.k8c.io/s3/
-      'prow-data': https://gcsweb.kcp.k8c.io/s3/
-      'prow-public-data': https://public-gcsweb.kcp.k8c.io/s3/
+    gcs_browser_prefix: "http://minio.prow.svc.cluster.local:9000/prow-logs/"
     lenses:
       - required_files:
-          - started.json
+          - ^(?:started|finished)\.json$
         optional_files:
-          - finished.json
+          - ^(?:podinfo|prowjob)\.json$
         lens:
           name: metadata
       - required_files:
@@ -148,64 +123,15 @@ branch-protection:
           include:
             - "^main$"
             - "^release-.+$"
+            
+# decorate_all_jobs: true
 
-presets:
-  ################################################################
-  # Default preset, will be applied to all jobs
+periodics:
+  - interval: 30m
+    agent: kubernetes
+    name: echo-test
+    spec:
+      containers:
+        - image: alpine
+          command: ["/bin/date"]
 
-  - env:
-      - name: DOCKER_REGISTRY_MIRROR_ADDR
-        valueFrom:
-          configMapKeyRef:
-            name: cluster-config
-            key: DOCKER_REGISTRY_MIRROR_ADDR
-            optional: true
-    volumeMounts:
-      - name: scratch
-        mountPath: /scratch
-    volumes:
-      - name: scratch
-        emptyDir:
-          medium: Memory
-
-  ################################################################
-  # opt-in to using the internal Athens go modules cache
-
-  - labels:
-      preset-goproxy: "true"
-    env:
-      - name: GOPROXY
-        valueFrom:
-          configMapKeyRef:
-            name: cluster-config
-            key: GOPROXY
-
-  ################################################################
-  # (prow-cluster only) mount the god kubeconfig
-
-  - labels:
-      preset-prow-kubeconfig: "true"
-    volumeMounts:
-      - name: prow-kubeconfig
-        mountPath: /etc/prow/kubeconfig
-    volumes:
-      - name: prow-kubeconfig
-        secret:
-          secretName: kubeconfig
-
-  ################################################################
-  # (prow-cluster only) username and password for GHCR
-
-  - labels:
-      preset-ghcr-credentials: "true"
-    env:
-      - name: KUBESTELLAR_GHCR_USERNAME
-        valueFrom:
-          secretKeyRef:
-            name: ghcr-credentials
-            key: username
-      - name: KUBESTELLAR_GHCR_PASSWORD
-        valueFrom:
-          secretKeyRef:
-            name: ghcr-credentials
-            key: password
