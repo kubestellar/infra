@@ -123,11 +123,11 @@ branch-protection:
           include:
             - "^main$"
             - "^release-.+$"
-            
+
 # decorate_all_jobs: true
 
 periodics:
-  - interval: 30m
+  - interval: 60m
     agent: kubernetes
     name: echo-test
     spec:

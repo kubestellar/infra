@@ -46,9 +46,9 @@ cherry_pick_unapproved:
 
     To merge this cherry pick, it must first be approved (`/lgtm` + `/approve`) by the relevant OWNERS.
 
-dco:
-  "*":
-    skip_dco_check_for_members: true
+# dco:
+#   "*":
+#     skip_dco_check_for_members: true
 
 label:
   additional_labels:
