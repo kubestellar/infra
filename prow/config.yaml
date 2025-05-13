@@ -87,7 +87,7 @@ github_reporter:
 
 tide:
   pr_status_base_urls:
-    "*": https://prow2-private.kubestellar.io/pr
+    "*": https://prow2-private.kubestellar.io/
 
   merge_method:
     kubestellar: merge
