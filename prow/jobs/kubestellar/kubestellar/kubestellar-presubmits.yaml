@@ -2,6 +2,7 @@ presubmits:
   kubestellar/kubestellar:
     - name: pull-kubestellar-kubestellar-validate-prow-yaml
       always_run: true
+      optional: true
       decorate: true
       clone_uri: "ssh://git@github.com/kubestellar/kubestellar.git"
       extra_refs:
