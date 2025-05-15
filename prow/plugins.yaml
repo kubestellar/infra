@@ -43,7 +43,7 @@ cherry_pick_unapproved:
   comment: |
     This cherry pick PR is for a release branch and has not yet been approved by Release Managers.
     Adding the `do-not-merge/cherry-pick-not-approved` label.
-
+    
     To merge this cherry pick, it must first be approved (`/lgtm` + `/approve`) by the relevant OWNERS.
 
 # dco:
@@ -54,6 +54,7 @@ label:
   additional_labels:
     - "blocked by backend"
     - "merge-type/merge"
+    - "merge-type/squash"
     - "merge-type/rebase"
     - "needs details"
     - "service accounts"
@@ -84,6 +85,43 @@ plugins:
       - trigger
       - verify-owners # verifies format of OWNERS file
       - wip
+  kubestellar/ui:  # UI repository configuration without DCO
+    plugins:
+      - approve
+      - assign
+      - branchcleaner
+      - hold
+      - label
+      - lgtm
+      - lifecycle
+      - milestoneapplier
+      - override
+      - owners-label
+      - retitle
+      - size
+      - skip
+      - trigger
+      - verify-owners
+      - wip
+  kubestellar/kubeflex:  # Added KubeFlex with DCO plugin
+    plugins:
+      - approve
+      - assign
+      - branchcleaner
+      - dco  
+      - hold
+      - label
+      - lgtm
+      - lifecycle
+      - milestoneapplier
+      - override
+      - owners-label
+      - retitle
+      - size
+      - skip
+      - trigger
+      - verify-owners
+      - wip
 
 require_matching_label:
   - missing_label: do-not-merge/needs-kind
@@ -94,6 +132,22 @@ require_matching_label:
 
 external_plugins:
   kubestellar:
+    - name: needs-rebase
+      events:
+        - pull_request
+    - name: cherrypicker
+      events:
+        - issue_comment
+        - pull_request
+  kubestellar/ui:
+    - name: needs-rebase
+      events:
+        - pull_request
+    - name: cherrypicker
+      events:
+        - issue_comment
+        - pull_request
+  kubestellar/kubeflex:
     - name: needs-rebase
       events:
         - pull_request
