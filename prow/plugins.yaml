@@ -85,11 +85,30 @@ plugins:
       - trigger
       - verify-owners # verifies format of OWNERS file
       - wip
-  kubestellar/ui:  # Add the UI repository configuration
+  kubestellar/ui:  # UI repository configuration without DCO
     plugins:
       - approve
       - assign
       - branchcleaner
+      - hold
+      - label
+      - lgtm
+      - lifecycle
+      - milestoneapplier
+      - override
+      - owners-label
+      - retitle
+      - size
+      - skip
+      - trigger
+      - verify-owners
+      - wip
+  kubestellar/kubeflex:  # Added KubeFlex with DCO plugin
+    plugins:
+      - approve
+      - assign
+      - branchcleaner
+      - dco  
       - hold
       - label
       - lgtm
@@ -120,7 +139,15 @@ external_plugins:
       events:
         - issue_comment
         - pull_request
-  kubestellar/ui:  # Add external plugins for the UI repository
+  kubestellar/ui:
+    - name: needs-rebase
+      events:
+        - pull_request
+    - name: cherrypicker
+      events:
+        - issue_comment
+        - pull_request
+  kubestellar/kubeflex:
     - name: needs-rebase
       events:
         - pull_request

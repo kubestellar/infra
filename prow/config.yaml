@@ -9,11 +9,13 @@ plank:
     "*": "[Full PR test history](https://prow2-private.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
     "kubestellar/kubestellar": "[Full PR test history](https://prow2.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
     "kubestellar/ui": "[Full PR test history](https://prow2.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
+    "kubestellar/kubeflex": "[Full PR test history](https://prow2.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
 
   job_url_prefix_config:
     "*": https://prow2-private.kubestellar.io/view/
     "kubestellar/kubestellar": "https://prow2.kubestellar.io/view/"
     "kubestellar/ui": "https://prow2.kubestellar.io/view/"
+    "kubestellar/kubeflex": "https://prow2.kubestellar.io/view/"
 
   default_decoration_config_entries:
     - config:
@@ -94,10 +96,12 @@ tide:
     kubestellar: merge
     kubestellar/kubestellar: merge 
     kubestellar/ui: squash
+    kubestellar/kubeflex: merge 
   queries:
     # no release notes
     - repos:
         - kubestellar/kubestellar
+        - kubestellar/kubeflex 
       labels:
         - lgtm
         - approved
@@ -148,6 +152,18 @@ branch-protection:
           include:
             - "^main$"
             - "^dev$"
+            - "^release-.+$"
+        kubeflex:  # Added KubeFlex with DCO check
+          protect: true
+          required_status_checks:
+            contexts:
+              - dco
+          restrictions:
+            users: []
+            teams:
+              - kubestellar/kubeflex-admins
+          include:
+            - "^main$"
             - "^release-.+$"
 
 # decorate_all_jobs: true
