@@ -8,10 +8,12 @@ plank:
   report_templates:
     "*": "[Full PR test history](https://prow2-private.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
     "kubestellar/kubestellar": "[Full PR test history](https://prow2.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
+    "kubestellar/ui": "[Full PR test history](https://prow2.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
 
   job_url_prefix_config:
     "*": https://prow2-private.kubestellar.io/view/
     "kubestellar/kubestellar": "https://prow2.kubestellar.io/view/"
+    "kubestellar/ui": "https://prow2.kubestellar.io/view/"
 
   default_decoration_config_entries:
     - config:
@@ -88,10 +90,10 @@ github_reporter:
 tide:
   pr_status_base_urls:
     "*": https://prow2-private.kubestellar.io/
-
   merge_method:
     kubestellar: merge
-
+    kubestellar/kubestellar: merge 
+    kubestellar/ui: squash
   queries:
     # no release notes
     - repos:
@@ -101,6 +103,18 @@ tide:
         - approved
       missingLabels:
         - "dco-signoff: no"
+        - do-not-merge
+        - do-not-merge/hold
+        - do-not-merge/invalid-owners-file
+        - do-not-merge/work-in-progress
+        - needs-rebase
+    # Query for UI repo without DCO requirement
+    - repos:
+        - kubestellar/ui
+      labels:
+        - lgtm
+        - approved
+      missingLabels:
         - do-not-merge
         - do-not-merge/hold
         - do-not-merge/invalid-owners-file
@@ -123,6 +137,18 @@ branch-protection:
           include:
             - "^main$"
             - "^release-.+$"
+        ui:
+          protect: true
+          required_status_checks:
+            contexts: []
+          restrictions:
+            users: []
+            teams:
+              - kubestellar/kubestellar-ui-admins
+          include:
+            - "^main$"
+            - "^dev$"
+            - "^release-.+$"
 
 # decorate_all_jobs: true
 
@@ -134,4 +160,3 @@ periodics:
       containers:
         - image: alpine
           command: ["/bin/date"]
-
