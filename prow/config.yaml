@@ -97,11 +97,13 @@ tide:
     kubestellar/kubestellar: merge 
     kubestellar/ui: squash
     kubestellar/kubeflex: merge 
+    kubestellar/infra: merge 
   queries:
     # no release notes
     - repos:
         - kubestellar/kubestellar
-        - kubestellar/kubeflex 
+        - kubestellar/kubeflex
+        - kubestellar/infra
       labels:
         - lgtm
         - approved
@@ -162,6 +164,18 @@ branch-protection:
             users: []
             teams:
               - kubestellar/kubeflex-admins
+          include:
+            - "^main$"
+            - "^release-.+$"
+        infra:
+          protect: true
+          required_status_checks:
+            contexts:
+              - dco
+          restrictions:
+            users: []
+            teams:
+              - kubestellar/kubestellar-admins
           include:
             - "^main$"
             - "^release-.+$"
