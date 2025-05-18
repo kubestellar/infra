@@ -1,9 +1,10 @@
 presubmits:
-  kubestellar/code-generator:
-    - name: pull-code-generator-validate-prow-yaml
+  kubestellar/ui:
+    - name: pull-kubestellar-ui-validate-prow-yaml
       always_run: true
+      optional: true
       decorate: true
-      clone_uri: "ssh://git@github.com/kubestellar/code-generator.git"
+      clone_uri: "ssh://git@github.com/kubestellar/ui.git"
       extra_refs:
         - org: kubestellar
           repo: infra
