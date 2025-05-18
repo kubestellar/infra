@@ -122,6 +122,9 @@ plugins:
       - trigger
       - verify-owners
       - wip
+  kubestellar/infra:
+    plugins:
+      - config-updater
 
 require_matching_label:
   - missing_label: do-not-merge/needs-kind

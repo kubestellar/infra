@@ -169,10 +169,24 @@ branch-protection:
 # decorate_all_jobs: true
 
 periodics:
-  - interval: 60m
+  - interval: 60m  # Existing echo-test job
     agent: kubernetes
     name: echo-test
     spec:
       containers:
         - image: alpine
           command: ["/bin/date"]
+
+  - interval: 60m  # New periodic job
+    agent: kubernetes
+    name: config-bootstrapper-job  # Name for the new job
+    spec:
+      containers:
+        - image: your-container-image  # Specify the appropriate container image that includes `config-bootstrapper`
+          command:
+            - ./config-bootstrapper  # Run the config-bootstrapper command
+            - --dry-run=false  # Set to false to apply the changes
+            - --source-path=./  # Path to the source (can be adjusted based on your repo structure)
+            - --config-path=prowconfig/config.yaml  # Path to your `config.yaml`
+            - --plugin-config=prowconfig/plugins.yaml  # Path to your `plugins.yaml`
+            - --job-config-path=prowconfig/jobs  # Path to your job configurations
