@@ -1,9 +1,10 @@
 presubmits:
-  kubestellar/kubestellar.github.io:
-    - name: pull-kubestellar-github-io-validate-prow-yaml
+  kubestellar/kubeflex:
+    - name: pull-kubestellar-kubeflex-validate-prow-yaml
       always_run: true
+      optional: true
       decorate: true
-      clone_uri: "ssh://git@github.com/kubestellar/kubestellar.github.io.git"
+      clone_uri: "ssh://git@github.com/kubestellar/kubeflex.git"
       extra_refs:
         - org: kubestellar
           repo: infra
