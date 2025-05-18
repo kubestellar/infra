@@ -182,7 +182,7 @@ periodics:
     name: config-bootstrapper-job  # Name for the new job
     spec:
       containers:
-        - image: your-container-image  # Specify the appropriate container image that includes `config-bootstrapper`
+        - image: alpine
           command:
             - ./config-bootstrapper  # Run the config-bootstrapper command
             - --dry-run=false  # Set to false to apply the changes
