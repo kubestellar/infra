@@ -130,7 +130,7 @@ plugins:
       - skip
       - trigger
       - verify-owners
-      # - wip
+      - wip
   kubestellar/infra:
     plugins:
       - config-updater
