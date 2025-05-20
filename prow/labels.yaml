@@ -10,7 +10,7 @@ default:
   labels:
     - color: e11d21
       description: Categorizes an issue or PR as actively needing an API review.
-      name: api-review2
+      name: api-review
       target: both
       prowPlugin: label
       addedBy: anyone
