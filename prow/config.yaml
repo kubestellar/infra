@@ -189,7 +189,7 @@ periodics:
     name: echo-test
     spec:
       containers:
-        - image: ghcr.io/jitesoft/alpine:3.20.6
+        - image: ghcr.io/kubestellar/kubestellar:alpine-3.22.0
           command: ["/bin/date"]
 
   # - interval: 60m  # New periodic job
