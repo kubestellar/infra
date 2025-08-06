@@ -9,6 +9,7 @@ triggers:
       - kubestellar/ui
       - kubestellar/kubeflex
       - kubestellar/infra
+      - kubestellar/a2a
     only_org_members: true
 
 approve:
@@ -17,6 +18,7 @@ approve:
       - kubestellar/ui
       - kubestellar/kubeflex
       - kubestellar/infra
+      - kubestellar/a2a
     ignore_review_state: true
     require_self_approval: true
 
@@ -26,6 +28,7 @@ lgtm:
       - kubestellar/ui
       - kubestellar/kubeflex
       - kubestellar/infra
+      - kubestellar/a2a
     # adds lgtm if GitHub review state is "Approve"
     # and removes lgtm if review state is "Request Changes"
     review_acts_as_lgtm: true
@@ -131,6 +134,24 @@ plugins:
       - trigger
       - verify-owners
       - wip
+  kubestellar/a2a:  # A2A repository configuration without DCO
+    plugins:
+      - approve
+      - assign
+      - branchcleaner
+      - hold
+      - label
+      - lgtm
+      - lifecycle
+      - milestoneapplier
+      - override
+      - owners-label
+      - retitle
+      - size
+      - skip
+      - trigger
+      - verify-owners
+      - wip
   kubestellar/infra:
     plugins:
       - config-updater
@@ -160,6 +181,14 @@ external_plugins:
         - issue_comment
         - pull_request
   kubestellar/kubeflex:
+    - name: needs-rebase
+      events:
+        - pull_request
+    - name: cherrypicker
+      events:
+        - issue_comment
+        - pull_request
+  kubestellar/a2a:
     - name: needs-rebase
       events:
         - pull_request
