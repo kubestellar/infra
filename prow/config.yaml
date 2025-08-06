@@ -11,12 +11,14 @@ plank:
     "kubestellar/kubestellar": "[Full PR test history](https://prow2.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
     "kubestellar/ui": "[Full PR test history](https://prow2.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
     "kubestellar/kubeflex": "[Full PR test history](https://prow2.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
+    "kubestellar/a2a": "[Full PR test history](https://prow2.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
 
   job_url_prefix_config:
     "*": https://prow2-private.kubestellar.io/view/
     "kubestellar/kubestellar": "https://prow2.kubestellar.io/view/"
     "kubestellar/ui": "https://prow2.kubestellar.io/view/"
     "kubestellar/kubeflex": "https://prow2.kubestellar.io/view/"
+    "kubestellar/a2a": "https://prow2.kubestellar.io/view/"
 
   default_decoration_config_entries:
     - config:
@@ -98,7 +100,8 @@ tide:
     kubestellar/kubestellar: merge 
     kubestellar/ui: squash
     kubestellar/kubeflex: merge 
-    kubestellar/infra: merge 
+    kubestellar/infra: merge
+    kubestellar/a2a: squash 
   queries:
     # no release notes
     - repos:
@@ -118,6 +121,18 @@ tide:
     # Query for UI repo without DCO requirement
     - repos:
         - kubestellar/ui
+      labels:
+        - lgtm
+        - approved
+      missingLabels:
+        - do-not-merge
+        - do-not-merge/hold
+        - do-not-merge/invalid-owners-file
+        - do-not-merge/work-in-progress
+        - needs-rebase
+    # Query for A2A repo without DCO requirement
+    - repos:
+        - kubestellar/a2a
       labels:
         - lgtm
         - approved
@@ -177,6 +192,17 @@ branch-protection:
             users: []
             teams:
               - kubestellar/kubestellar-admins
+          include:
+            - "^main$"
+            - "^release-.+$"
+        a2a:  # Added A2A without DCO check
+          protect: true
+          required_status_checks:
+            contexts: []
+          restrictions:
+            users: []
+            teams:
+              - kubestellar/kubestellar-a2a-maintainers
           include:
             - "^main$"
             - "^release-.+$"
