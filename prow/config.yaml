@@ -202,7 +202,7 @@ branch-protection:
           restrictions:
             users: []
             teams:
-              - kubestellar/a2a-admins
+              - kubestellar/kubestellar-a2a-maintainers
           include:
             - "^main$"
             - "^release-.+$"
