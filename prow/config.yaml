@@ -12,6 +12,7 @@ plank:
     "kubestellar/ui": "[Full PR test history](https://prow2.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
     "kubestellar/kubeflex": "[Full PR test history](https://prow2.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
     "kubestellar/a2a": "[Full PR test history](https://prow2.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
+    "kubestellar/kubectl-plugin": "[Full PR test history](https://prow2.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
 
   job_url_prefix_config:
     "*": https://prow2-private.kubestellar.io/view/
@@ -19,6 +20,7 @@ plank:
     "kubestellar/ui": "https://prow2.kubestellar.io/view/"
     "kubestellar/kubeflex": "https://prow2.kubestellar.io/view/"
     "kubestellar/a2a": "https://prow2.kubestellar.io/view/"
+    "kubestellar/kubectl-plugin": "https://prow2.kubestellar.io/view/"
 
   default_decoration_config_entries:
     - config:
@@ -101,13 +103,15 @@ tide:
     kubestellar/ui: squash
     kubestellar/kubeflex: merge 
     kubestellar/infra: merge
-    kubestellar/a2a: squash 
+    kubestellar/a2a: squash
+    kubestellar/kubectl-plugin: squash
   queries:
     # no release notes
     - repos:
         - kubestellar/kubestellar
         - kubestellar/kubeflex
         - kubestellar/infra
+        - kubestellar/kubectl-plugin
       labels:
         - lgtm
         - approved
@@ -180,6 +184,18 @@ branch-protection:
             users: []
             teams:
               - kubestellar/kubeflex-admins
+          include:
+            - "^main$"
+            - "^release-.+$"
+        kubectl-plugin:  # Added kubectl-plugin with DCO check
+          protect: true
+          required_status_checks:
+            contexts:
+              - dco
+          restrictions:
+            users: []
+            teams:
+              - kubestellar/kubestellar-admins
           include:
             - "^main$"
             - "^release-.+$"
