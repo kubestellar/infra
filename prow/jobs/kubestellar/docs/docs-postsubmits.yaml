@@ -1,0 +1,54 @@
+postsubmits:
+  kubestellar/docs:
+    - name: post-kubestellar-docs-deploy-main
+      branches:
+        - ^main$
+      decorate: true
+      clone_uri: "https://github.com/kubestellar/docs"
+      spec:
+        containers:
+          - image: node:20
+            command:
+              - /bin/bash
+              - -c
+              - |
+                # Install dependencies and build
+                npm ci
+                npm run build
+
+                # Export static site if using static export
+                if npm run | grep -q "export"; then
+                  npm run export
+                  echo "✓ Static site exported"
+                fi
+
+                # Here you would typically deploy to your hosting platform
+                # For example, deploying to GitHub Pages, Netlify, or Vercel
+                echo "✓ Documentation build ready for deployment"
+            resources:
+              requests:
+                memory: 3Gi
+                cpu: 2
+                ephemeral-storage: 6Gi
+
+    - name: post-kubestellar-docs-build-dev
+      branches:
+        - ^dev$
+      decorate: true
+      clone_uri: "https://github.com/kubestellar/docs"
+      spec:
+        containers:
+          - image: node:20
+            command:
+              - /bin/bash
+              - -c
+              - |
+                # Build development version of docs
+                npm ci
+                npm run build
+                echo "✓ Development documentation build completed"
+            resources:
+              requests:
+                memory: 3Gi
+                cpu: 2
+                ephemeral-storage: 6Gi
