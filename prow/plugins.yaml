@@ -155,6 +155,19 @@ plugins:
   kubestellar/infra:
     plugins:
       - config-updater
+      - assign
+      - branchcleaner
+      - dco
+      - hold
+      - label # adds or removes labels of the type area/*, kind/*, etc
+      - milestoneapplier
+      - override
+      - owners-label # automatically adds labels to PRs based on the files they touch; labels are mentioned in the OWNERS file
+      - size
+      - skip # /skip cleans up commit statuses of non-blocking presubmits on PRs
+      - trigger
+      - verify-owners # verifies format of OWNERS file
+      - wip
 
 require_matching_label:
   - missing_label: do-not-merge/needs-kind
