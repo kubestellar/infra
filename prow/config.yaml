@@ -14,6 +14,7 @@ plank:
     "kubestellar/a2a": "[Full PR test history](https://prow2.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
     "kubestellar/kubectl-plugin": "[Full PR test history](https://prow2.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
     "kubestellar/docs": "[Full PR test history](https://prow2.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
+    "kubestellar/infra": "[Full PR test history](https://prow2.kubestellar.io/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}})"
 
   job_url_prefix_config:
     "*": https://prow2-private.kubestellar.io/view/
@@ -23,6 +24,7 @@ plank:
     "kubestellar/a2a": "https://prow2.kubestellar.io/view/"
     "kubestellar/kubectl-plugin": "https://prow2.kubestellar.io/view/"
     "kubestellar/docs": "https://prow2.kubestellar.io/view/"
+    "kubestellar/infra": "https://prow2.kubestellar.io/view/"
 
   default_decoration_config_entries:
     - config:
