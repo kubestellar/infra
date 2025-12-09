@@ -255,6 +255,25 @@ branch-protection:
 
 # decorate_all_jobs: true
 
+presets:
+
+  ################################################################
+  # (prow-cluster only) username and password for GHCR
+
+  - labels:
+      preset-ghcr-credentials: "true"
+    env:
+      - name: KUBESTELLAR_GHCR_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: ghcr-credentials
+            key: username
+      - name: KUBESTELLAR_GHCR_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: ghcr-credentials
+            key: password
+
 periodics:
   - interval: 60m  # Existing echo-test job
     agent: kubernetes
