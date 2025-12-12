@@ -1,15 +1,15 @@
 ARG GO_VERSION
 
-FROM --platform=${TARGETPLATFORM} docker.io/library/golang:${GO_VERSION} as download
+FROM docker.io/library/golang:${GO_VERSION} AS download
 
     # the Kubernetes version that is used to determine which kubectl to install.
-ENV KUBECTL_VERSION=1.32.3 \
+ENV KUBECTL_VERSION=1.32.10 \
     # the kind version installed into this image.
     # https://github.com/kubernetes-sigs/kind/releases
     KIND_VERSION=0.27.0 \
     # the Helm version installed into this image.
     # https://github.com/helm/helm/releases
-    HELM_VERSION=3.17.2 \
+    HELM_VERSION=3.17.4 \
     # the kubeconform version installed into this image.
     # https://github.com/yannh/kubeconform/releases
     KUBECONFORM_VERSION=0.6.7
@@ -32,7 +32,7 @@ RUN curl --fail -L https://github.com/yannh/kubeconform/releases/download/v${KUB
     chmod +x kubeconform && \
     ./kubeconform -v
 
-FROM --platform=${TARGETPLATFORM} docker.io/library/golang:${GO_VERSION}
+FROM docker.io/library/golang:${GO_VERSION}
 
 # this is used by docker as data root
 VOLUME /docker-graph
@@ -59,7 +59,7 @@ RUN apt-get update && \
 RUN curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg | gpg --dearmor > /usr/share/keyrings/docker.com.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.com.gpg] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list && \
     apt-get update && \
-    apt-get install -y --no-install-recommends docker-ce=5:27.3.* socat && \
+    apt-get install -y --no-install-recommends docker-ce=5:28.5.* socat && \
     sed -i 's/cgroupfs_mount$/#cgroupfs_mount\n/' /etc/init.d/docker && \
     sed -i 's/ulimit -Hn/#ulimit -Hn/g' /etc/init.d/docker && \
     mkdir -p /etc/docker && \
