@@ -1,7 +1,7 @@
 presubmits:
   - name: pull-infra-images-1.23-build
     decorate: true
-    clone_uri: "ssh://git@github.com/kubestellar/infra.git"
+    clone_uri: "https://github.com/kubestellar/infra.git"
     run_if_changed: '^images/build/go-1.23'
     labels:
       preset-goproxy: "true"
@@ -24,7 +24,7 @@ presubmits:
 
   - name: pull-infra-images-1.24-build
     decorate: true
-    clone_uri: "ssh://git@github.com/kubestellar/infra.git"
+    clone_uri: "https://github.com/kubestellar/infra.git"
     run_if_changed: '^images/build/go-1.24'
     labels:
       preset-goproxy: "true"
@@ -44,3 +44,4 @@ presubmits:
             requests:
               memory: 1Gi
               cpu: 1
+              
