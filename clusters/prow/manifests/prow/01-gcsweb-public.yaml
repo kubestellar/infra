@@ -76,7 +76,7 @@ metadata:
     ingress.kubernetes.io/force-ssl-redirect: "true"
 spec:
   rules:
-    - host: 'public-gcsweb.kcp.k8c.io'
+    - host: 'gcsweb.kubestellar.io'
       http:
         paths:
           - path: /
@@ -88,5 +88,6 @@ spec:
                   number: 80
   tls:
     - hosts:
-        - 'public-gcsweb.kcp.k8c.io'
+        - 'gcsweb.kubestellar.io'
       secretName: gcsweb-public-tls
+      
