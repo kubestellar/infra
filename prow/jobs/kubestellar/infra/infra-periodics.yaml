@@ -20,15 +20,16 @@ periodics:
         - --config=/home/prow/go/src/github.com/kubestellar/infra/prow/labels.yaml
         - --confirm=true
         - --orgs=kubestellar
-        - --token=/etc/oauth-token/token
+        - --github-app-id=1227751
+        - --github-app-private-key-path=/etc/github-app/cert
         - --endpoint=http://ghproxy.prow.svc.cluster.local
         - --endpoint=https://api.github.com
         - --debug
         volumeMounts:
-        - name: oauth-token
-          mountPath: /etc/oauth-token
+        - name: github-app
+          mountPath: /etc/github-app
           readOnly: true
       volumes:
-      - name: oauth-token
+      - name: github-app
         secret:
           secretName: github-token
