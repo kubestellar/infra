@@ -396,3 +396,223 @@ default:
       target: both
       prowPlugin: shrug
       addedBy: humans
+
+orgs:
+  kubestellar:
+    labels:
+      # KubeStellar-specific kind/bug color (blue instead of red)
+      - color: 22A0DF
+        description: Categorizes issue or PR as related to a bug.
+        name: kind/bug
+        target: both
+        prowPlugin: label
+        addedBy: anyone
+      # KubeStellar-specific priority labels
+      - color: e11d21
+        description: Highest priority. Must be actively worked on as someone's top priority right now.
+        name: priority/high
+        target: both
+        prowPlugin: label
+        addedBy: anyone
+      - color: eb6420
+        description: Must be staffed and worked on either currently, or very soon, ideally in time for the next release.
+        name: priority/medium
+        target: both
+        prowPlugin: label
+        addedBy: anyone
+      - color: fbca04
+        description: Higher priority than priority/awaiting-more-evidence.
+        name: priority/low
+        target: both
+        prowPlugin: label
+        addedBy: anyone
+      - color: fef2c0
+        description: Lowest priority. Possibly useful, but not yet enough support to actually get it done.
+        name: priority/awaiting
+        target: both
+        prowPlugin: label
+        addedBy: anyone
+      # KubeStellar area labels
+      - color: 80FD11
+        description: Issues or PRs related to Edge-specific workspaces
+        name: area/workspace
+        target: both
+        addedBy: label
+      - color: 80FD11
+        description: Issues or PRs related to edge workspace
+        name: area/scheduler
+        target: both
+        addedBy: label
+      - color: 80FD11
+        description: Issues or PRs related to Edge-specific placement
+        name: area/placement
+        target: both
+        addedBy: label
+      - color: 80fd11
+        description: Issues or PRs related to policy distribution
+        name: area/policy
+        target: both
+        addedBy: label
+      - color: 80FD11
+        description: For items related to syncer and kcp-edge-specific enhancements required to it
+        name: area/syncer
+        target: both
+        addedBy: label
+      - color: 0052cc
+        description: Issues or PRs related to Kubernetes licensing
+        name: area/licensing
+        target: both
+        addedBy: label
+      # KubeStellar project management labels
+      - color: 5C253A
+        description: Epic tracking issue
+        name: Epic
+        target: issues
+        addedBy: humans
+      - color: FCF42D
+        description: Issues related to community meetings
+        name: community-meeting
+        target: issues
+        addedBy: humans
+      - color: BB3A42
+        description: Initialization related
+        name: init
+        target: both
+        addedBy: humans
+      - color: 15dd18
+        description: Indicates a release branch PR has been approved by a staff engineer.
+        name: staff-eng-approved
+        target: prs
+        addedBy: humans
+      - color: 15dd18
+        description: Indicates that all commits come from merged upstream PRs.
+        name: backports/validated-commits
+        target: prs
+        addedBy: humans
+      - color: e11d21
+        description: Indicates that not all commits come from merged upstream PRs.
+        name: backports/unvalidated-commits
+        target: prs
+        addedBy: humans
+      - color: fef2c0
+        description: Indicates a PR to a release branch has been evaluated and considered safe to accept.
+        name: backport-risk-assessed
+        target: prs
+        addedBy: humans
+      - color: bfdadc
+        description: Touching vendor dir or related files
+        name: vendor-update
+        target: both
+        addedBy: humans
+      # KubeStellar feature labels
+      - color: 7057ff
+        description: Denotes an issue ready for a new contributor, according to the "help wanted" guidelines.
+        name: first-timers-only
+        target: issues
+        addedBy: humans
+      - color: 0366d6
+        description: Pull requests that update a dependency file
+        name: dependencies
+        target: prs
+        addedBy: prow
+      - color: B5E863
+        description: Issues related to preparation for a conference
+        name: conference
+        target: issues
+        addedBy: humans
+      - color: B33DF2
+        description: Issues that are related to installing and running the quickstart example
+        name: quickstart
+        target: both
+        addedBy: humans
+      - color: d93f0b
+        description: Issues or PRs related to the low-level API machinery for KubeStellar
+        name: backend
+        target: both
+        addedBy: humans
+      - color: 081C43
+        description: Partner related issues
+        name: partner
+        target: issues
+        addedBy: humans
+      - color: C0E896
+        description: Issues or PRs related to creating blog postings for KubeStellar
+        name: blog
+        target: both
+        addedBy: humans
+      # KubeStellar triage/workflow labels
+      - color: d455d0
+        description: Indicates an issue that is a support question.
+        name: triage/support
+        target: both
+        addedBy: humans
+      - color: DD5AFE
+        description: Question about whether this issue is still valid
+        name: is this still valid?
+        target: issues
+        addedBy: humans
+      - color: CB13CB
+        description: Related to space framework
+        name: space framework
+        target: both
+        addedBy: humans
+      - color: DF1C6C
+        description: Architecture discussion needed
+        name: architecture discussion
+        target: issues
+        addedBy: humans
+      - color: CC374E
+        description: MCC related
+        name: MCC
+        target: both
+        addedBy: humans
+      - color: 7060B5
+        description: Troubleshooting issues
+        name: troubleshooting
+        target: issues
+        addedBy: humans
+      - color: 05A5A5
+        description: Edge deployment related
+        name: edgeDeployment
+        target: both
+        addedBy: humans
+      - color: C55745
+        description: Pluggable transport related
+        name: pluggable-transport
+        target: both
+        addedBy: humans
+      - color: 1F89F9
+        description: User experience related
+        name: ux
+        target: both
+        addedBy: humans
+      - color: D93F0B
+        description: Phase 0 related
+        name: phase0
+        target: both
+        addedBy: humans
+      - color: 82FCBE
+        description: Main legacy related
+        name: main-legacy
+        target: both
+        addedBy: humans
+      - color: fbca04
+        description: Backlog item
+        name: backlog
+        target: both
+        addedBy: humans
+      - color: 1A26C9
+        description: This feature is required for UC1 validation
+        name: uc1-validation
+        target: both
+        addedBy: humans
+      - color: 0e8a16
+        description: MCAD integration related
+        name: MCAD integration
+        target: both
+        addedBy: humans
+      - color: E322F9
+        description: Switch to PT
+        name: switch to PT
+        target: both
+        addedBy: humans
