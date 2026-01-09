@@ -5,30 +5,18 @@
 # trigger will make sure that test jobs only run on trusted PRs
 triggers:
   - repos:
-      - kubestellar/kubestellar
-      - kubestellar/ui
-      - kubestellar/kubeflex
-      - kubestellar/infra
-      - kubestellar/a2a
+      - kubestellar  # Org-wide: applies to all repos in the kubestellar org
     only_org_members: true
 
 approve:
   - repos:
-      - kubestellar/kubestellar
-      - kubestellar/ui
-      - kubestellar/kubeflex
-      - kubestellar/infra
-      - kubestellar/a2a
+      - kubestellar  # Org-wide
     ignore_review_state: true
     require_self_approval: true
 
 lgtm:
   - repos:
-      - kubestellar/kubestellar
-      - kubestellar/ui
-      - kubestellar/kubeflex
-      - kubestellar/infra
-      - kubestellar/a2a
+      - kubestellar  # Org-wide
     # adds lgtm if GitHub review state is "Approve"
     # and removes lgtm if review state is "Request Changes"
     review_acts_as_lgtm: true
@@ -55,12 +43,8 @@ cherry_pick_unapproved:
   comment: |
     This cherry pick PR is for a release branch and has not yet been approved by Release Managers.
     Adding the `do-not-merge/cherry-pick-not-approved` label.
-    
-    To merge this cherry pick, it must first be approved (`/lgtm` + `/approve`) by the relevant OWNERS.
 
-# dco:
-#   "*":
-#     skip_dco_check_for_members: true
+    To merge this cherry pick, it must first be approved (`/lgtm` + `/approve`) by the relevant OWNERS.
 
 label:
   additional_labels:
@@ -78,31 +62,14 @@ label:
     - redesign
 
 plugins:
-  kubestellar/kubestellar:
+  # Org-wide defaults - applies to ALL repos in kubestellar org
+  kubestellar:
     plugins:
       - approve
       - assign
       - branchcleaner
       - dco
       - hold
-      - label # adds or removes labels of the type area/*, kind/*, etc
-      - lgtm
-      - lifecycle # allows to close or open issues for non-members, mark issues and PRs as stale, etc
-      - milestoneapplier
-      - override
-      - owners-label # automatically adds labels to PRs based on the files they touch; labels are mentioned in the OWNERS file
-      - retitle # /retitle allows to edit the title of a PR (e.g. to remove WIP, when people are on vacation)
-      - size
-      - skip # /skip cleans up commit statuses of non-blocking presubmits on PRs
-      - trigger
-      - verify-owners # verifies format of OWNERS file
-      - wip
-  kubestellar/ui:  # UI repository configuration without DCO
-    plugins:
-      - approve
-      - assign
-      - branchcleaner
-      - hold
       - label
       - lgtm
       - lifecycle
@@ -115,59 +82,11 @@ plugins:
       - trigger
       - verify-owners
       - wip
-  kubestellar/kubeflex:  # Added KubeFlex with DCO plugin
-    plugins:
-      - approve
-      - assign
-      - branchcleaner
-      - dco  
-      - hold
-      - label
-      - lgtm
-      - lifecycle
-      - milestoneapplier
-      - override
-      - owners-label
-      - retitle
-      - size
-      - skip
-      - trigger
-      - verify-owners
-      - wip
-  kubestellar/a2a:  # A2A repository configuration without DCO
-    plugins:
-      - approve
-      - assign
-      - branchcleaner
-      - hold
-      - label
-      - lgtm
-      - lifecycle
-      - milestoneapplier
-      - override
-      - owners-label
-      - retitle
-      - size
-      - skip
-      - trigger
-      - verify-owners
-      - wip
+
+  # Repo-specific overrides (only for repos needing additional plugins)
   kubestellar/infra:
     plugins:
-      - config-updater
-      - assign
-      - branchcleaner
-      - dco
-      - hold
-      - label # adds or removes labels of the type area/*, kind/*, etc
-      - milestoneapplier
-      - override
-      - owners-label # automatically adds labels to PRs based on the files they touch; labels are mentioned in the OWNERS file
-      - size
-      - skip # /skip cleans up commit statuses of non-blocking presubmits on PRs
-      - trigger
-      - verify-owners # verifies format of OWNERS file
-      - wip
+      - config-updater  # Only infra needs config-updater for prow config sync
 
 require_matching_label:
   - missing_label: do-not-merge/needs-kind
@@ -177,31 +96,8 @@ require_matching_label:
     regexp: ^kind/
 
 external_plugins:
-  kubestellar/kubestellar:
-    - name: needs-rebase
-      events:
-        - pull_request
-    - name: cherrypicker
-      events:
-        - issue_comment
-        - pull_request
-  kubestellar/ui:
-    - name: needs-rebase
-      events:
-        - pull_request
-    - name: cherrypicker
-      events:
-        - issue_comment
-        - pull_request
-  kubestellar/kubeflex:
-    - name: needs-rebase
-      events:
-        - pull_request
-    - name: cherrypicker
-      events:
-        - issue_comment
-        - pull_request
-  kubestellar/a2a:
+  # Org-wide external plugins
+  kubestellar:
     - name: needs-rebase
       events:
         - pull_request
@@ -215,4 +111,3 @@ owners:
     kubestellar/controller-runtime:
       owners: DOWNSTREAM_OWNERS
       owners_aliases: DOWNSTREAM_OWNERS_ALIASES
-
