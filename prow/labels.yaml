@@ -400,13 +400,6 @@ default:
 orgs:
   kubestellar:
     labels:
-      # KubeStellar-specific kind/bug color (blue instead of red)
-      - color: 22A0DF
-        description: Categorizes issue or PR as related to a bug.
-        name: kind/bug
-        target: both
-        prowPlugin: label
-        addedBy: anyone
       # KubeStellar-specific priority labels
       - color: e11d21
         description: Highest priority. Must be actively worked on as someone's top priority right now.
