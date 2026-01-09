@@ -19,7 +19,7 @@ periodics:
         args:
         - --config=/home/prow/go/src/github.com/kubestellar/infra/prow/labels.yaml
         - --confirm=true
-        - --only=kubestellar/kubestellar,kubestellar/kubeflex,kubestellar/ui,kubestellar/infra,kubestellar/a2a
+        - --only=kubestellar/kubestellar,kubestellar/kubeflex,kubestellar/ui,kubestellar/infra,kubestellar/a2a,kubestellar/docs,kubestellar/community,kubestellar/helm,kubestellar/kubectl-multi-plugin,kubestellar/kubectl-rbac-flatten-plugin,kubestellar/galaxy,kubestellar/core,kubestellar/ocm-status-addon,kubestellar/repo-template-go,kubestellar/ui-plugins,kubestellar/kubestellar-killercoda,kubestellar/kubestellar-infrastructure
         - --token=/etc/oauth-token/token
         - --endpoint=http://ghproxy.prow.svc.cluster.local
         - --endpoint=https://api.github.com
