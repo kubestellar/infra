@@ -31,10 +31,10 @@ plank:
         timeout: 2h
         grace_period: 5m
         utility_images:
-          clonerefs: us-docker.pkg.dev/k8s-infra-prow/images/clonerefs:v20240802-66b115076
-          entrypoint: us-docker.pkg.dev/k8s-infra-prow/images/entrypoint:v20240802-66b115076
-          initupload: us-docker.pkg.dev/k8s-infra-prow/images/initupload:v20240802-66b115076
-          sidecar: us-docker.pkg.dev/k8s-infra-prow/images/sidecar:v20240802-66b115076
+          clonerefs: us-docker.pkg.dev/k8s-infra-prow/images/clonerefs:v20260109-e821f0db6
+          entrypoint: us-docker.pkg.dev/k8s-infra-prow/images/entrypoint:v20260109-e821f0db6
+          initupload: us-docker.pkg.dev/k8s-infra-prow/images/initupload:v20260109-e821f0db6
+          sidecar: us-docker.pkg.dev/k8s-infra-prow/images/sidecar:v20260109-e821f0db6
         gcs_configuration:
           bucket: "s3://prow-logs"
           path_strategy: "explicit"
