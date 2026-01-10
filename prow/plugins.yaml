@@ -94,6 +94,10 @@ require_matching_label:
     repo: kubestellar
     prs: true
     regexp: ^kind/
+  - missing_label: needs-triage
+    org: kubestellar
+    issues: true
+    regexp: ^triage/
 
 external_plugins:
   # Org-wide external plugins
