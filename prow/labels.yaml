@@ -539,11 +539,6 @@ orgs:
         name: triage/support
         target: both
         addedBy: humans
-      - color: DD5AFE
-        description: Question about whether this issue is still valid
-        name: is this still valid?
-        target: issues
-        addedBy: humans
       - color: CB13CB
         description: Related to space framework
         name: space framework

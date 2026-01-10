@@ -19,11 +19,13 @@ periodics:
         - -c
         - |
           # Sync repos one at a time to avoid parallel request hangs
-          REPOS=$(label_sync --config=/home/prow/go/src/github.com/kubestellar/infra/prow/labels.yaml --orgs=kubestellar --action=docs 2>/dev/null | grep "kubestellar/" | cut -d'/' -f2 | sort -u || echo "")
+          # Exclude archived repos (ocm-transport-plugin)
+          REPOS=$(label_sync --config=/home/prow/go/src/github.com/kubestellar/infra/prow/labels.yaml --orgs=kubestellar --action=docs 2>/dev/null | grep "kubestellar/" | cut -d'/' -f2 | grep -v "ocm-transport-plugin" | sort -u || echo "")
 
           # If we can't get repo list dynamically, use known repos
+          # Note: ocm-transport-plugin is excluded because it's archived
           if [ -z "$REPOS" ]; then
-            REPOS=".github a2a community core docs galaxy helm homebrew-kubectl-multi homebrew-kubestellar infra kubectl-multi-plugin kubectl-rbac-flatten-plugin kubeflex kubestellar kubestellar-infrastructure kubestellar-killercoda ocm-status-addon ocm-transport-plugin presentations repo-template repo-template-go ui ui-plugins"
+            REPOS=".github a2a community core docs galaxy helm homebrew-kubectl-multi homebrew-kubestellar infra kubectl-multi-plugin kubectl-rbac-flatten-plugin kubeflex kubestellar kubestellar-infrastructure kubestellar-killercoda ocm-status-addon presentations repo-template repo-template-go ui ui-plugins"
           fi
 
           FAILED=""
