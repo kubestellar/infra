@@ -27,7 +27,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - name: gcsweb-public
-          image: gcr.io/k8s-prow/gcsweb:v20240731-a5d9345e59
+          image: us-docker.pkg.dev/k8s-infra-prow/images/gcsweb:v20260109-e821f0db6
           args:
             - -s3-credentials-file=/etc/s3-credentials/service-account.json
             - -b=s3://prow-public-data
