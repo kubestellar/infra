@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Run spellcheck
-        uses: rojopolis/spellcheck-github-actions@dbd2f1da869c05ad874fffeb6fe1ed50e30c180a
+        uses: rojopolis/spellcheck-github-actions@cebe06444da3ac5e9d3146f5f02a0e2a236f7488
         with:
           config_path: ${{ inputs.config_path }}
           task_name: ${{ inputs.task_name }}
