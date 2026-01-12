@@ -21,3 +21,6 @@
 go.work
 
 kindest.tar
+
+# MacOS junk
+.DS_Store
