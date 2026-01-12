@@ -1,0 +1,38 @@
+name: Reusable PR Title Verifier
+
+on:
+  workflow_call:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]' && github.actor != 'renovate[bot]'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Validate PR Title Format
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${TITLE}" ]; then
+            echo "Error: PR title cannot be empty."
+            exit 1
+          fi
+
+          # Define allowed emoji prefixes
+          if ! printf '%s' "$TITLE" | grep -qE '^(\xE2\x9A\xA0|\xE2\x9C\xA8|\xF0\x9F\x90\x9B|\xF0\x9F\x93\x96|\xF0\x9F\x9A\x80|\xF0\x9F\x8C\xB1)'; then
+            printf "Required indicator not found at the start of title: %q\n" "$TITLE"
+            echo "Your PR title must start with one of the following:"
+            echo "  Warning sign (Breaking change)"
+            echo "  Sparkles (Non-breaking feature)"
+            echo "  Bug (Patch fix)"
+            echo "  Book (Documentation)"
+            echo "  Rocket (Release)"
+            echo "  Seedling (Infra/Tests/Other)"
+            exit 1
+          fi
+
+          printf "PR title is valid: '%q'\n" "$TITLE"

@@ -1,0 +1,46 @@
+name: Reusable Stale Issues
+
+on:
+  workflow_call:
+    inputs:
+      days_before_stale:
+        description: 'Days before marking issue as stale'
+        required: false
+        type: number
+        default: 90
+      days_before_close:
+        description: 'Days before closing stale issue'
+        required: false
+        type: number
+        default: 90
+      exempt_labels:
+        description: 'Comma-separated labels exempt from stale'
+        required: false
+        type: string
+        default: 'security,bug,enhancement,good first issue,help wanted,hacktober-fest,lifecycle/frozen'
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/stale@28ca1036281a5e5922ead5184a1bbf96e5fc984e
+        with:
+          days-before-issue-stale: ${{ inputs.days_before_stale }}
+          days-before-issue-close: ${{ inputs.days_before_close }}
+          stale-issue-label: lifecycle/stale
+          stale-pr-label: lifecycle/stale
+          stale-issue-message: >-
+            This issue has been automatically marked as stale because it has not had recent activity.
+            It will be closed in ${{ inputs.days_before_close }} days if no further activity occurs. If this is still relevant,
+            please add a comment to keep it open.
+          close-issue-message: >-
+            Closing this issue due to prolonged inactivity after being marked as stale. If this remains
+            an active concern, feel free to reopen or create a new issue with updated details.
+          close-issue-label: lifecycle/auto-closed
+          days-before-pr-stale: -1
+          days-before-pr-close: -1
+          exempt-issue-labels: ${{ inputs.exempt_labels }}
+          exempt-pr-labels: security,lifecycle/frozen
+          exempt-all-assignees: true

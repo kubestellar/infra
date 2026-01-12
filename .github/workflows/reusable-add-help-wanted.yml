@@ -1,0 +1,38 @@
+name: Reusable Add Help Wanted Label
+
+on:
+  workflow_call:
+
+jobs:
+  add-help-wanted:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
+        with:
+          script: |
+            const issue = context.payload.issue;
+            if (!issue) return;
+
+            // Check if the issue already has help-wanted or good-first-issue labels
+            const labels = issue.labels.map(l => l.name);
+            const hasHelpLabel = labels.some(l =>
+              l === 'help wanted' || l === 'good first issue'
+            );
+
+            if (hasHelpLabel) {
+              console.log('Issue already has help-wanted or good-first-issue label');
+              return;
+            }
+
+            // Add help-wanted label to issues that are not assigned
+            if (!issue.assignee && !issue.assignees?.length) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['help wanted']
+              });
+              console.log('Added help-wanted label to issue #' + issue.number);
+            }
