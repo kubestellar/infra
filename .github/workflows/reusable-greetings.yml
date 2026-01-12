@@ -7,24 +7,42 @@ on:
         description: 'Message to post for first-time PR contributors'
         required: false
         type: string
-        default: "Thank you for submitting your first Pull Request to KubeStellar. We are delighted to have you in our Universe! 🚀"
+        default: |
+          Welcome to KubeStellar! 🚀 Thank you for submitting your first Pull Request.
+
+          **Before your PR can be merged, please ensure:**
+
+          ✅ **DCO Sign-off** - All commits must be signed off with `git commit -s` to certify the [Developer Certificate of Origin](https://developercertificate.org/)
+
+          ✅ **PR Title** - Must start with an emoji: ✨ (feature), 🐛 (bug fix), 📖 (docs), 🌱 (infra/tests), ⚠️ (breaking change)
+
+          **Helpful resources:**
+          - 📚 [Contributing Guide](https://docs.kubestellar.io/stable/direct/contribute/)
+          - 🪜 [Contributor Ladder](https://docs.kubestellar.io/stable/direct/contribute/#contributor-ladder)
+          - 💬 [Slack - #kubestellar-dev](https://cloud-native.slack.com/channels/kubestellar-dev) (CNCF workspace)
+          - 📖 [CONTRIBUTING.md](https://github.com/kubestellar/kubestellar/blob/main/CONTRIBUTING.md)
+
+          A maintainer will review your PR soon. Feel free to ask questions in the comments or on Slack!
       issue_message:
         description: 'Message to post for first-time issue creators'
         required: false
         type: string
         default: |
-          Thank you for contributing your first Issue to KubeStellar. We are delighted to have you in our Universe!
+          Welcome to KubeStellar! 🚀 Thank you for opening your first issue.
 
-          👋 Hi there!
-
-          To assign yourself to this issue, please use the slash command:
+          **To work on this issue**, use the slash command:
           ```
           /assign
           ```
+          This will automatically assign the issue to you. Use `/unassign` to remove yourself.
 
-          This will automatically assign the issue to you via our Prow bot. You can also use `/unassign` to remove yourself from an issue.
+          **Helpful resources:**
+          - 📚 [Documentation](https://docs.kubestellar.io/)
+          - 🪜 [Contributor Ladder](https://docs.kubestellar.io/stable/direct/contribute/#contributor-ladder)
+          - 💬 [Slack - #kubestellar-dev](https://cloud-native.slack.com/channels/kubestellar-dev) (CNCF workspace)
+          - 🏷️ Look for issues labeled [`good first issue`](https://github.com/kubestellar/kubestellar/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) to get started!
 
-          Thank you for your interest in contributing to KubeStellar! 🚀
+          We're excited to have you in our community!
       check_org_wide:
         description: 'Check org-wide contributions instead of just this repo'
         required: false
