@@ -3,12 +3,19 @@ name: Reusable Greetings
 on:
   workflow_call:
     inputs:
+      pr_message:
+        description: 'Message to post for first-time PR contributors'
+        required: false
+        type: string
+        default: "Thank you for submitting your first Pull Request to KubeStellar. We are delighted to have you in our Universe! 🚀"
       issue_message:
-        description: 'Custom message for first-time issue contributors'
+        description: 'Message to post for first-time issue creators'
         required: false
         type: string
         default: |
           Thank you for contributing your first Issue to KubeStellar. We are delighted to have you in our Universe!
+
+          👋 Hi there!
 
           To assign yourself to this issue, please use the slash command:
           ```
@@ -17,12 +24,15 @@ on:
 
           This will automatically assign the issue to you via our Prow bot. You can also use `/unassign` to remove yourself from an issue.
 
-          Thank you for your interest in contributing to KubeStellar!
-      pr_message:
-        description: 'Custom message for first-time PR contributors'
+          Thank you for your interest in contributing to KubeStellar! 🚀
+      check_org_wide:
+        description: 'Check org-wide contributions instead of just this repo'
         required: false
-        type: string
-        default: 'Thank you for submitting your first Pull Request to KubeStellar. We are delighted to have you in our Universe!'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
 
 jobs:
   greeting:
@@ -31,9 +41,116 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - uses: actions/first-interaction@1c4688942c71f71d4f5502a26ea67c331730fa4d
-        continue-on-error: true
+      - name: Check and greet first-time contributor
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          issue_message: ${{ inputs.issue_message }}
-          pr_message: ${{ inputs.pr_message }}
+          script: |
+            const { owner, repo } = context.repo;
+            const author = context.payload.pull_request?.user?.login || context.payload.issue?.user?.login;
+            const isPR = !!context.payload.pull_request;
+            const itemNumber = context.payload.pull_request?.number || context.payload.issue?.number;
+
+            if (!author || !itemNumber) {
+              console.log('Could not determine author or item number');
+              return;
+            }
+
+            // Skip bots
+            if (author.endsWith('[bot]') || author === 'dependabot' || author === 'github-actions') {
+              console.log(`Skipping bot: ${author}`);
+              return;
+            }
+
+            console.log(`Checking contributions for ${author} (org-wide: ${{ inputs.check_org_wide }})`);
+
+            let hasContributed = false;
+            const checkOrgWide = ${{ inputs.check_org_wide }};
+
+            if (checkOrgWide) {
+              // Check org-wide contributions - any merged PR or closed issue
+              try {
+                const { data: orgPRs } = await github.rest.search.issuesAndPullRequests({
+                  q: `org:${owner} author:${author} is:pr is:merged`,
+                  per_page: 1
+                });
+                if (orgPRs.total_count > 0) {
+                  hasContributed = true;
+                  console.log(`${author} has ${orgPRs.total_count} merged PRs in the org`);
+                }
+              } catch (e) {
+                console.log(`Error checking org PRs: ${e.message}`);
+              }
+
+              // Also check for any open PRs (excluding current one)
+              if (!hasContributed) {
+                try {
+                  const { data: openPRs } = await github.rest.search.issuesAndPullRequests({
+                    q: `org:${owner} author:${author} is:pr is:open`,
+                    per_page: 10
+                  });
+                  // Exclude current PR from count
+                  const otherPRs = openPRs.items.filter(pr => pr.number !== itemNumber);
+                  if (otherPRs.length > 0) {
+                    hasContributed = true;
+                    console.log(`${author} has ${otherPRs.length} other open PRs in the org`);
+                  }
+                } catch (e) {
+                  console.log(`Error checking open PRs: ${e.message}`);
+                }
+              }
+
+              // Check for issues created
+              if (!hasContributed) {
+                try {
+                  const { data: orgIssues } = await github.rest.search.issuesAndPullRequests({
+                    q: `org:${owner} author:${author} is:issue`,
+                    per_page: 1
+                  });
+                  // Exclude current issue if applicable
+                  const count = orgIssues.total_count - (isPR ? 0 : 1);
+                  if (count > 0) {
+                    hasContributed = true;
+                    console.log(`${author} has ${count} issues in the org`);
+                  }
+                } catch (e) {
+                  console.log(`Error checking org issues: ${e.message}`);
+                }
+              }
+            } else {
+              // Check repo-only contributions
+              try {
+                const { data: repoPRs } = await github.rest.pulls.list({
+                  owner,
+                  repo,
+                  state: 'all',
+                  per_page: 100
+                });
+                const authorPRs = repoPRs.filter(pr => pr.user.login === author && pr.number !== itemNumber);
+                if (authorPRs.length > 0) {
+                  hasContributed = true;
+                  console.log(`${author} has ${authorPRs.length} PRs in this repo`);
+                }
+              } catch (e) {
+                console.log(`Error checking repo PRs: ${e.message}`);
+              }
+            }
+
+            if (hasContributed) {
+              console.log(`${author} is not a first-time contributor, skipping greeting`);
+              return;
+            }
+
+            console.log(`${author} is a first-time contributor, posting greeting`);
+
+            const prMessage = `${{ inputs.pr_message }}`;
+            const issueMessage = `${{ inputs.issue_message }}`;
+            const message = isPR ? prMessage : issueMessage;
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: itemNumber,
+              body: message
+            });
+
+            console.log('Greeting posted successfully');
