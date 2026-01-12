@@ -26,6 +26,7 @@ jobs:
       issues: write
     steps:
       - uses: actions/stale@28ca1036281a5e5922ead5184a1bbf96e5fc984e
+        continue-on-error: true
         with:
           days-before-issue-stale: ${{ inputs.days_before_stale }}
           days-before-issue-close: ${{ inputs.days_before_close }}
