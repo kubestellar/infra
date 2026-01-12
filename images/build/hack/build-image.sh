@@ -24,9 +24,16 @@ source ./env
 
 image="$repository:${BUILD_IMAGE_TAG}"
 
-echo "📦 Downloading kindest image to embed ..."
-docker pull docker.io/${KINDEST_IMAGE}
-docker save ${KINDEST_IMAGE} -o kindest.tar
+# Download kindest image to embed (skip in DRY_RUN mode for presubmit validation)
+if [ -z "${DRY_RUN:-}" ]; then
+  echo "📦 Downloading kindest image to embed ..."
+  docker pull docker.io/${KINDEST_IMAGE}
+  docker save ${KINDEST_IMAGE} -o kindest.tar
+else
+  echo "🛑 DRY_RUN is set; skipping kindest image download."
+  # Create empty tarball for build validation
+  touch kindest.tar
+fi
 
 if [ "$BUILDER" = "buildah" ]; then
   echo "🔧 Using buildah to build multi-arch images..."
