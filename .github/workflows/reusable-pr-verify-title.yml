@@ -33,8 +33,6 @@ jobs:
             echo "🚀 (indicates Release)"
             echo "🌱 (indicates Infra/Tests/Other)"
             echo -n "Your title's first character is, in hex: "
-6 months ago
-Add diagnostic to PR title failure
             python3 -c "import os; print('%x' % ord(os.environ['TITLE'][0]))"
             exit 1
           fi
