@@ -25,13 +25,17 @@ jobs:
           # Define allowed emoji prefixes (⚠️ ✨ 🐛 📖 🚀 🌱)
           if ! printf '%s' "$TITLE" | grep -qE '^(⚠|✨|🐛|📖|🚀|🌱)'; then
             printf "Required indicator not found at the start of title: %q\n" "$TITLE"
-            echo "Your PR title must start with one of the following:"
-            echo "  ⚠ Warning sign (Breaking change)"
-            echo "  ✨ Sparkles (Non-breaking feature)"
-            echo "  🐛 Bug (Patch fix)"
-            echo "  📖 Book (Documentation)"
-            echo "  🚀 Rocket (Release)"
-            echo "  🌱 Seedling (Infra/Tests/Other)"
+            echo "Your PR title must start with one of the following special characters:"
+            echo "⚠ (indicates Breaking change)"
+            echo "✨ (indicates Non-breaking feature)"
+            echo "🐛 (indicates Patch fix)"
+            echo "📖 (indicates Documentation)"
+            echo "🚀 (indicates Release)"
+            echo "🌱 (indicates Infra/Tests/Other)"
+            echo -n "Your title's first character is, in hex: "
+6 months ago
+Add diagnostic to PR title failure
+            python3 -c "import os; print('%x' % ord(os.environ['TITLE'][0]))"
             exit 1
           fi
 
