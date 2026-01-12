@@ -22,16 +22,16 @@ jobs:
             exit 1
           fi
 
-          # Define allowed emoji prefixes
-          if ! printf '%s' "$TITLE" | grep -qE '^(\xE2\x9A\xA0|\xE2\x9C\xA8|\xF0\x9F\x90\x9B|\xF0\x9F\x93\x96|\xF0\x9F\x9A\x80|\xF0\x9F\x8C\xB1)'; then
+          # Define allowed emoji prefixes (⚠️ ✨ 🐛 📖 🚀 🌱)
+          if ! printf '%s' "$TITLE" | grep -qE '^(⚠|✨|🐛|📖|🚀|🌱)'; then
             printf "Required indicator not found at the start of title: %q\n" "$TITLE"
             echo "Your PR title must start with one of the following:"
-            echo "  Warning sign (Breaking change)"
-            echo "  Sparkles (Non-breaking feature)"
-            echo "  Bug (Patch fix)"
-            echo "  Book (Documentation)"
-            echo "  Rocket (Release)"
-            echo "  Seedling (Infra/Tests/Other)"
+            echo "  ⚠ Warning sign (Breaking change)"
+            echo "  ✨ Sparkles (Non-breaking feature)"
+            echo "  🐛 Bug (Patch fix)"
+            echo "  📖 Book (Documentation)"
+            echo "  🚀 Rocket (Release)"
+            echo "  🌱 Seedling (Infra/Tests/Other)"
             exit 1
           fi
 
