@@ -2,7 +2,12 @@
 
 set -euo pipefail
 
-: "${BUILDER:=buildx}"  # Use "buildah" or "buildx"
+# Use "buildah" or "buildx" - default to buildah if docker is not available
+if command -v docker &> /dev/null; then
+  : "${BUILDER:=buildx}"
+else
+  : "${BUILDER:=buildah}"
+fi
 repository=ghcr.io/kubestellar/infra/build
 architectures="amd64 arm64"
 platforms="linux/amd64,linux/arm64"
