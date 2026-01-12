@@ -32,8 +32,16 @@ image="$repository:${BUILD_IMAGE_TAG}"
 # Download kindest image to embed (skip in DRY_RUN mode for presubmit validation)
 if [ -z "${DRY_RUN:-}" ]; then
   echo "📦 Downloading kindest image to embed ..."
-  docker pull docker.io/${KINDEST_IMAGE}
-  docker save ${KINDEST_IMAGE} -o kindest.tar
+  if command -v docker &> /dev/null; then
+    docker pull docker.io/${KINDEST_IMAGE}
+    docker save ${KINDEST_IMAGE} -o kindest.tar
+  elif command -v skopeo &> /dev/null; then
+    # Use skopeo to download the image as a docker-archive tarball
+    skopeo copy --all docker://docker.io/${KINDEST_IMAGE} docker-archive:kindest.tar:${KINDEST_IMAGE}
+  else
+    echo "⚠️ Neither docker nor skopeo available. Creating empty kindest.tar placeholder."
+    touch kindest.tar
+  fi
 else
   echo "🛑 DRY_RUN is set; skipping kindest image download."
   # Create empty tarball for build validation
@@ -63,8 +71,12 @@ if [ "$BUILDER" = "buildah" ]; then
   done
 
   if [ -z "${DRY_RUN:-}" ]; then
+    # Support both old and new env var naming conventions
+    GHCR_USER="${KUBESTELLAR_GHCR_USERNAME:-${GHCR_USERNAME:-}}"
+    GHCR_PASS="${KUBESTELLAR_GHCR_PASSWORD:-${GHCR_TOKEN:-}}"
+
     echo "🔐 Logging into GHCR via buildah ..."
-    buildah login --username "$KUBESTELLAR_GHCR_USERNAME" --password "$KUBESTELLAR_GHCR_PASSWORD" ghcr.io
+    buildah login --username "$GHCR_USER" --password "$GHCR_PASS" ghcr.io
 
     echo "🚀 Pushing manifest and images ..."
     buildah manifest push --all "$image" "docker://$image"
@@ -76,7 +88,10 @@ elif [ "$BUILDER" = "buildx" ]; then
   echo "🔧 Using docker buildx to build and push $image for $platforms"
 
   if [ -z "${DRY_RUN:-}" ]; then
-    echo "$KUBESTELLAR_GHCR_PASSWORD" | docker login ghcr.io -u "$KUBESTELLAR_GHCR_USERNAME" --password-stdin
+    # Support both old and new env var naming conventions
+    GHCR_USER="${KUBESTELLAR_GHCR_USERNAME:-${GHCR_USERNAME:-}}"
+    GHCR_PASS="${KUBESTELLAR_GHCR_PASSWORD:-${GHCR_TOKEN:-}}"
+    echo "$GHCR_PASS" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
     pushFlag="--push"
   else
     pushFlag="--load"
