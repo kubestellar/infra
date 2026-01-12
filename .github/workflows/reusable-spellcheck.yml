@@ -1,0 +1,29 @@
+name: Reusable Spellcheck
+
+on:
+  workflow_call:
+    inputs:
+      config_path:
+        description: 'Path to spellcheck configuration file'
+        required: false
+        type: string
+        default: '.github/spellcheck/.spellcheck.yml'
+      task_name:
+        description: 'Task name in spellcheck config'
+        required: false
+        type: string
+        default: 'Markdown'
+
+jobs:
+  spellcheck:
+    name: Spellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Run spellcheck
+        uses: rojopolis/spellcheck-github-actions@dbd2f1da869c05ad874fffeb6fe1ed50e30c180a
+        with:
+          config_path: ${{ inputs.config_path }}
+          task_name: ${{ inputs.task_name }}
