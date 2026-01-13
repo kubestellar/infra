@@ -19,7 +19,7 @@ jobs:
       contents: read
     steps:
       - name: Comment feedback request
-        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1a35fcc
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4
         continue-on-error: true
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
