@@ -18,15 +18,30 @@ periodics:
         - /bin/sh
         - -c
         - |
-          # Sync repos one at a time to avoid parallel request hangs
-          # Get list of public, non-archived repos dynamically
-          REPOS=$(label_sync --config=/home/prow/go/src/github.com/kubestellar/infra/prow/labels.yaml --orgs=kubestellar --action=docs 2>/dev/null | grep "kubestellar/" | cut -d'/' -f2 | sort -u || echo "")
+          # Dynamically get list of public, non-archived repos from GitHub API
+          # This ensures new repos are automatically included and deleted repos are skipped
 
-          # If we can't get repo list dynamically, use known public repos
-          # Excluded: core, homebrew-kubestellar (private), ocm-transport-plugin (archived)
+          echo "Fetching repo list from GitHub API..."
+
+          # Get GitHub App installation token
+          # The label_sync tool will handle auth, but we need repos list first
+          # Use the GitHub API to list all public, non-archived repos in the org
+          REPOS=$(curl -s -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/orgs/kubestellar/repos?type=public&per_page=100" \
+            | jq -r '.[] | select(.archived == false) | .name' | sort -u || echo "")
+
           if [ -z "$REPOS" ]; then
-            REPOS=".github a2a community docs galaxy helm homebrew-kubectl-multi infra kubectl-multi-plugin kubectl-rbac-flatten-plugin kubeflex kubestellar kubestellar-killercoda ocm-status-addon presentations repo-template repo-template-go ui ui-plugins"
+            echo "WARNING: Could not fetch repos from API, trying label_sync discovery..."
+            REPOS=$(label_sync --config=/home/prow/go/src/github.com/kubestellar/infra/prow/labels.yaml --orgs=kubestellar --action=docs 2>/dev/null | grep "kubestellar/" | cut -d'/' -f2 | sort -u || echo "")
           fi
+
+          if [ -z "$REPOS" ]; then
+            echo "ERROR: Could not get repo list from API or label_sync"
+            exit 1
+          fi
+
+          echo "Found repos: $REPOS"
+          echo ""
 
           FAILED=""
           SUCCESS_COUNT=0
