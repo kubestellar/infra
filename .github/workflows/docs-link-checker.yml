@@ -166,6 +166,7 @@ jobs:
             gh issue create --repo kubestellar/docs \
               --title "$issue_title" \
               --label "help wanted,bug,documentation" \
+              --assignee copilot \
               --body "$issue_body" || echo "Failed to create issue for $url"
 
             # Rate limit to avoid API issues
