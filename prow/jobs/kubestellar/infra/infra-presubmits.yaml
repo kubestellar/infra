@@ -3,7 +3,7 @@ presubmits:
     - name: pull-infra-validate-prow-yaml
       always_run: true
       decorate: true
-      clone_uri: "ssh://git@github.com/kubestellar/infra.git"
+      clone_uri: "https://github.com/kubestellar/infra.git"
       spec:
         containers:
           - image: us-docker.pkg.dev/k8s-infra-prow/images/checkconfig:v20260109-e821f0db6
@@ -17,7 +17,7 @@ presubmits:
 
     - name: pull-infra-validate-prow-jobs
       decorate: true
-      clone_uri: "ssh://git@github.com/kubestellar/infra.git"
+      clone_uri: "https://github.com/kubestellar/infra.git"
       run_if_changed: "prow/jobs/"
       branches:
         - ^main$
@@ -37,7 +37,7 @@ presubmits:
       labels:
         app: label-sync
       decorate: true
-      clone_uri: "ssh://git@github.com/kubestellar/infra.git"
+      clone_uri: "https://github.com/kubestellar/infra.git"
       run_if_changed: '^prow/labels.yaml$'
       spec:
         containers:
