@@ -7,7 +7,7 @@ on:
         description: 'URL to the feedback survey'
         required: false
         type: string
-        default: 'https://kubestellar.io/survey'
+        default: 'https://forms.gle/VsG6aJpikf3NKjJH6'
 
 jobs:
   feedback:
@@ -24,9 +24,18 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            Thank you for your contribution! Your PR has been successfully merged.
+            🎉 Thank you for your contribution! Your PR has been successfully merged.
 
-            We'd love to hear your thoughts to help improve KubeStellar.
-            Please take a moment to fill out our short feedback survey:
+            ---
 
-            ${{ inputs.survey_url }}
+            🌟 **Help KubeStellar Grow - We Need Adopters!**
+
+            Our roadmap is driven **entirely by adopter feedback** - nothing else. Whether you're using KubeStellar yourself or know organizations that could benefit from multi-cluster Kubernetes, we need your help:
+
+            📋 **[Take our Multi-Cluster Survey](${{ inputs.survey_url }})** - Share your use cases and help shape our direction!
+
+            🗣️ **Spread the word** - Tell colleagues, write blog posts, present at meetups
+
+            💬 **Share feedback** on [Slack #kubestellar-dev](https://cloud-native.slack.com/archives/C097094RZ3M)
+
+            Every adopter story helps us prioritize what matters most. Thank you for being part of the KubeStellar community!

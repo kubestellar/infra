@@ -1,0 +1,15 @@
+name: Label Helper
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+
+jobs:
+  label-helper:
+    uses: kubestellar/infra/.github/workflows/reusable-label-helper.yml@main
+    permissions:
+      issues: write
+      pull-requests: write
