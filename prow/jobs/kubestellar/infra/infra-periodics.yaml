@@ -82,11 +82,11 @@ periodics:
               name: github-token
               key: appid
         volumeMounts:
-        - name: github-token
+        - name: github-app-key
           mountPath: /etc/github
           readOnly: true
       volumes:
-      - name: github-token
+      - name: github-app-key
         secret:
           secretName: github-token
 
@@ -109,10 +109,10 @@ periodics:
         args:
         - --config=/home/prow/go/src/github.com/kubestellar/infra/prow/autobump-config.yaml
         volumeMounts:
-        - name: github-token
+        - name: github-app-key
           mountPath: /etc/github-token
           readOnly: true
       volumes:
-      - name: github-token
+      - name: github-app-key
         secret:
           secretName: github-token
