@@ -17,7 +17,7 @@ on:
           ✅ **PR Title** - Must start with an emoji: ✨ (feature), 🐛 (bug fix), 📖 (docs), 🌱 (infra/tests), ⚠️ (breaking change)
 
           **Getting Started with KubeStellar:**
-          - 📦 [Installation Guide](https://docs.kubestellar.io/stable/direct/get-started/)
+          - 📦 [Quick Start](https://kubestellar.io/docs/user-guide/quick-start)
           - 📖 [Documentation](https://docs.kubestellar.io/)
           - 🎬 [YouTube - Getting Started & Contributing](https://www.youtube.com/@kubestellar)
 
@@ -57,7 +57,7 @@ on:
           - 🔍 [CLOTributor](https://clotributor.dev/search?project=kubestellar) - CNCF issue finder
 
           **Getting Started with KubeStellar:**
-          - 📦 [Installation Guide](https://docs.kubestellar.io/stable/direct/get-started/)
+          - 📦 [Quick Start](https://kubestellar.io/docs/user-guide/quick-start)
           - 📖 [Documentation](https://docs.kubestellar.io/)
           - 🎬 [YouTube - Getting Started & Contributing](https://www.youtube.com/@kubestellar)
 
