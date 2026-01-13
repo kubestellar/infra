@@ -16,7 +16,7 @@ presubmits:
                 export PATH="/root/.local/bin:$PATH"
                 
                 # Install dependencies
-                uv sync --dev
+                uv sync --dev --python-preference only-system
                 
                 # Run tests with pytest and coverage
                 uv run pytest tests/ -v --cov=src/ --cov-report=xml --cov-report=term
@@ -41,7 +41,7 @@ presubmits:
                 export PATH="/root/.local/bin:$PATH"
                 
                 # Install dependencies
-                uv sync --dev
+                uv sync --dev --python-preference only-system
                 
                 # Run tests with pytest and coverage
                 uv run pytest tests/ -v --cov=src/ --cov-report=xml --cov-report=term
@@ -66,7 +66,7 @@ presubmits:
                 export PATH="/root/.local/bin:$PATH"
                 
                 # Install dependencies
-                uv sync --dev
+                uv sync --dev --python-preference only-system
                 
                 # Lint with ruff
                 echo "Running ruff..."
