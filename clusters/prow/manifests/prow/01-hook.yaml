@@ -68,42 +68,41 @@ spec:
       containers:
         - name: hook
           image: us-docker.pkg.dev/k8s-infra-prow/images/hook:v20260109-e821f0db6
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           args:
             - --dry-run=false
-            - --slack-token-file=/etc/slack/token
+            - --config-path=/etc/config/config.yaml
             - --github-endpoint=http://ghproxy
             - --github-endpoint=https://api.github.com
-            - --github-token-path=/etc/github/token
-            - --config-path=/etc/config/config.yaml
+            - --github-app-id=$(GITHUB_APP_ID)
+            - --github-app-private-key-path=/etc/github/cert
             - --job-config-path=/etc/job-config
-            - --kubeconfig=/etc/kubeconfigs/kubeconfig
-            - --hmac-secret-file=/etc/github-hmac/token
+          env:
+            - name: GITHUB_APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: github-token
+                  key: appid
           ports:
             - name: http
               containerPort: 8888
             - name: metrics
               containerPort: 9090
           volumeMounts:
-            - name: slack
-              mountPath: /etc/slack
+            - name: hmac
+              mountPath: /etc/webhook
+              readOnly: true
             - name: github
               mountPath: /etc/github
-              readOnly: true
-            - name: github-hmac
-              mountPath: /etc/github-hmac
               readOnly: true
             - name: config
               mountPath: /etc/config
               readOnly: true
-            - name: job-config
-              mountPath: /etc/job-config
-              readOnly: true
             - name: plugins
               mountPath: /etc/plugins
               readOnly: true
-            - name: kubeconfig
-              mountPath: /etc/kubeconfigs
+            - name: job-config
+              mountPath: /etc/job-config
               readOnly: true
           livenessProbe:
             httpGet:
@@ -117,29 +116,22 @@ spec:
               port: 8081
             initialDelaySeconds: 10
             periodSeconds: 3
-            timeoutSeconds: 600
       volumes:
-        - name: slack
+        - name: hmac
           secret:
-            secretName: slack-token
+            secretName: hmac-token
         - name: github
           secret:
             secretName: github-token
-        - name: github-hmac
-          secret:
-            secretName: github-hmac-token
         - name: config
           configMap:
             name: config
-        - name: job-config
-          configMap:
-            name: job-config
         - name: plugins
           configMap:
             name: plugins
-        - name: kubeconfig
-          secret:
-            secretName: kubeconfig
+        - name: job-config
+          configMap:
+            name: job-config
       nodeSelector:
         kubermatic.io/stable: "true"
       tolerations:
