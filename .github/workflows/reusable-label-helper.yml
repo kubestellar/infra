@@ -50,6 +50,26 @@ jobs:
             const validKinds = process.env.VALID_KINDS.split(',').map(k => k.trim());
             const validAreas = process.env.VALID_AREAS.split(',').map(a => a.trim());
 
+            // Handle /help-wanted, /good-first-issue, /hacktober-fest commands
+            const labelCommands = {
+              '/help-wanted': 'help wanted',
+              '/good-first-issue': 'good first issue',
+              '/hacktober-fest': 'hacktober-fest'
+            };
+
+            const trimmedComment = comment.trim().toLowerCase();
+            if (labelCommands[trimmedComment]) {
+              const label = labelCommands[trimmedComment];
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: itemNumber,
+                labels: [label]
+              });
+              console.log(`Added label: ${label}`);
+              return;
+            }
+
             // Check for /kind commands
             const kindMatches = comment.match(/\/kind\s+(\S+)/gi) || [];
             const areaMatches = comment.match(/\/area\s+(\S+)/gi) || [];
