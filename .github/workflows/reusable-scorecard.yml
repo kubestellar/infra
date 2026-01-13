@@ -3,7 +3,8 @@ name: Reusable OpenSSF Scorecard
 on:
   workflow_call:
 
-permissions: read-all
+# Permissions inherited from caller workflow
+# Job-level permissions below specify what's needed
 
 jobs:
   analysis:
