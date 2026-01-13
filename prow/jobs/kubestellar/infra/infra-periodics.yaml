@@ -13,68 +13,18 @@ periodics:
       clone_uri: "https://github.com/kubestellar/infra.git"
     spec:
       containers:
+      # Use simple --orgs flag to let label_sync discover repos
+      # label_sync queries GitHub API and handles archived/deleted repos gracefully
       - image: gcr.io/k8s-prow/label_sync:v20240731-a5d9345e59
         command:
-        - /bin/sh
-        - -c
-        - |
-          # Dynamically get list of public, non-archived repos from GitHub API
-          # This ensures new repos are automatically included and deleted repos are skipped
-
-          echo "Fetching repo list from GitHub API..."
-
-          # Get GitHub App installation token
-          # The label_sync tool will handle auth, but we need repos list first
-          # Use the GitHub API to list all public, non-archived repos in the org
-          REPOS=$(curl -s -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/orgs/kubestellar/repos?type=public&per_page=100" \
-            | jq -r '.[] | select(.archived == false) | .name' | sort -u || echo "")
-
-          if [ -z "$REPOS" ]; then
-            echo "WARNING: Could not fetch repos from API, trying label_sync discovery..."
-            REPOS=$(label_sync --config=/home/prow/go/src/github.com/kubestellar/infra/prow/labels.yaml --orgs=kubestellar --action=docs 2>/dev/null | grep "kubestellar/" | cut -d'/' -f2 | sort -u || echo "")
-          fi
-
-          if [ -z "$REPOS" ]; then
-            echo "ERROR: Could not get repo list from API or label_sync"
-            exit 1
-          fi
-
-          echo "Found repos: $REPOS"
-          echo ""
-
-          FAILED=""
-          SUCCESS_COUNT=0
-          for repo in $REPOS; do
-            echo "=== Syncing kubestellar/$repo ==="
-            if label_sync \
-              --config=/home/prow/go/src/github.com/kubestellar/infra/prow/labels.yaml \
-              --confirm=true \
-              --only=kubestellar/$repo \
-              --github-app-id=$GITHUB_APP_ID \
-              --github-app-private-key-path=/etc/github/cert \
-              --github-endpoint=https://api.github.com; then
-              echo "SUCCESS: kubestellar/$repo"
-              SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
-            else
-              echo "FAILED: kubestellar/$repo (may be deleted, archived, or private)"
-              FAILED="$FAILED $repo"
-            fi
-            echo ""
-          done
-
-          echo "=== Summary ==="
-          echo "Successful: $SUCCESS_COUNT repos"
-          if [ -n "$FAILED" ]; then
-            echo "Failed:$FAILED"
-            echo "Note: Failures may be due to deleted, archived, or private repos"
-          fi
-          # Only fail if ALL repos failed
-          if [ "$SUCCESS_COUNT" -eq 0 ]; then
-            echo "ERROR: All repos failed to sync"
-            exit 1
-          fi
-          echo "Label sync completed"
+        - label_sync
+        args:
+        - --config=/home/prow/go/src/github.com/kubestellar/infra/prow/labels.yaml
+        - --confirm=true
+        - --orgs=kubestellar
+        - --github-app-id=$(GITHUB_APP_ID)
+        - --github-app-private-key-path=/etc/github/cert
+        - --github-endpoint=https://api.github.com
         env:
         - name: GITHUB_APP_ID
           valueFrom:
