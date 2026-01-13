@@ -34,7 +34,7 @@ presubmits:
               - |
                 # Install uv package manager
                 curl -LsSf https://astral.sh/uv/install.sh | sh
-                export PATH="/root/.cargo/bin:$PATH"
+                export PATH="/root/.local/bin:$PATH"
                 
                 # Install dependencies
                 uv sync --dev
@@ -59,7 +59,7 @@ presubmits:
               - |
                 # Install uv package manager
                 curl -LsSf https://astral.sh/uv/install.sh | sh
-                export PATH="/root/.cargo/bin:$PATH"
+                export PATH="/root/.local/bin:$PATH"
                 
                 # Install dependencies
                 uv sync --dev
@@ -84,7 +84,7 @@ presubmits:
               - |
                 # Install uv package manager
                 curl -LsSf https://astral.sh/uv/install.sh | sh
-                export PATH="/root/.cargo/bin:$PATH"
+                export PATH="/root/.local/bin:$PATH"
                 
                 # Install dependencies
                 uv sync --dev
