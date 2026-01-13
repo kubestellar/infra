@@ -12,20 +12,20 @@ on:
 
           **Before your PR can be merged, please ensure:**
 
-          ✅ **DCO Sign-off** - All commits must be signed off with `git commit -s` to certify the <a href="https://developercertificate.org/" target="_blank">Developer Certificate of Origin</a>
+          ✅ **DCO Sign-off** - All commits must be signed off with `git commit -s` to certify the [Developer Certificate of Origin](https://developercertificate.org/)
 
           ✅ **PR Title** - Must start with an emoji: ✨ (feature), 🐛 (bug fix), 📖 (docs), 🌱 (infra/tests), ⚠️ (breaking change)
 
           **Getting Started with KubeStellar:**
-          - 📦 <a href="https://kubestellar.io/docs/user-guide/quick-start" target="_blank">Quick Start</a>
-          - 📖 <a href="https://docs.kubestellar.io/" target="_blank">Documentation</a>
-          - 🎬 <a href="https://www.youtube.com/@kubestellar" target="_blank">YouTube - Getting Started & Contributing</a>
+          - 📦 [Quick Start](https://kubestellar.io/docs/user-guide/quick-start)
+          - 📖 [Documentation](https://docs.kubestellar.io/)
+          - 🎬 [YouTube - Getting Started & Contributing](https://www.youtube.com/@kubestellar)
 
           **Contributor Resources:**
-          - 📚 <a href="https://kubestellar.io/contribute-handbook" target="_blank">Contributor Handbook</a>
-          - 🪜 <a href="https://kubestellar.io/ladder" target="_blank">Contributor Ladder</a>
-          - 🎓 <a href="https://kubestellar.io/programs" target="_blank">Mentorship Programs (LFX, GSoC)</a>
-          - 💬 <a href="https://cloud-native.slack.com/archives/C097094RZ3M" target="_blank">Slack - #kubestellar-dev</a>
+          - 📚 [Contributor Handbook](https://kubestellar.io/contribute-handbook)
+          - 🪜 [Contributor Ladder](https://kubestellar.io/ladder)
+          - 🎓 [Mentorship Programs (LFX, GSoC)](https://kubestellar.io/programs)
+          - 💬 [Slack - #kubestellar-dev](https://cloud-native.slack.com/archives/C097094RZ3M)
 
           ---
 
@@ -33,7 +33,7 @@ on:
 
           Our roadmap is driven entirely by adopter feedback. Whether you're using KubeStellar yourself or know someone who could benefit from multi-cluster Kubernetes:
 
-          📋 <a href="https://forms.gle/VsG6aJpikf3NKjJH6" target="_blank"><b>Take our Multi-Cluster Survey</b></a> - Share your use cases and help shape our direction!
+          📋 **[Take our Multi-Cluster Survey](https://forms.gle/VsG6aJpikf3NKjJH6)** - Share your use cases and help shape our direction!
 
           ---
 
@@ -52,20 +52,20 @@ on:
           This will automatically assign the issue to you. Use `/unassign` to remove yourself.
 
           **Find Issues to Work On:**
-          - 🏷️ <a href="https://github.com/kubestellar/kubestellar/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22" target="_blank"><code>good first issue</code></a> - Great for new contributors
-          - 🙋 <a href="https://github.com/kubestellar/kubestellar/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22" target="_blank"><code>help wanted</code></a> - Community help needed
-          - 🔍 <a href="https://clotributor.dev/search?project=kubestellar" target="_blank">CLOTributor</a> - CNCF issue finder
+          - 🏷️ [`good first issue`](https://github.com/kubestellar/kubestellar/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) - Great for new contributors
+          - 🙋 [`help wanted`](https://github.com/kubestellar/kubestellar/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) - Community help needed
+          - 🔍 [CLOTributor](https://clotributor.dev/search?project=kubestellar) - CNCF issue finder
 
           **Getting Started with KubeStellar:**
-          - 📦 <a href="https://kubestellar.io/docs/user-guide/quick-start" target="_blank">Quick Start</a>
-          - 📖 <a href="https://docs.kubestellar.io/" target="_blank">Documentation</a>
-          - 🎬 <a href="https://www.youtube.com/@kubestellar" target="_blank">YouTube - Getting Started & Contributing</a>
+          - 📦 [Quick Start](https://kubestellar.io/docs/user-guide/quick-start)
+          - 📖 [Documentation](https://docs.kubestellar.io/)
+          - 🎬 [YouTube - Getting Started & Contributing](https://www.youtube.com/@kubestellar)
 
           **Contributor Resources:**
-          - 📚 <a href="https://kubestellar.io/contribute-handbook" target="_blank">Contributor Handbook</a>
-          - 🪜 <a href="https://kubestellar.io/ladder" target="_blank">Contributor Ladder</a>
-          - 🎓 <a href="https://kubestellar.io/programs" target="_blank">Mentorship Programs (LFX, GSoC)</a>
-          - 💬 <a href="https://cloud-native.slack.com/archives/C097094RZ3M" target="_blank">Slack - #kubestellar-dev</a>
+          - 📚 [Contributor Handbook](https://kubestellar.io/contribute-handbook)
+          - 🪜 [Contributor Ladder](https://kubestellar.io/ladder)
+          - 🎓 [Mentorship Programs (LFX, GSoC)](https://kubestellar.io/programs)
+          - 💬 [Slack - #kubestellar-dev](https://cloud-native.slack.com/archives/C097094RZ3M)
 
           **For Maintainers - Label Commands:**
           - `/good-first-issue` - Mark this issue as suitable for new contributors
@@ -77,7 +77,7 @@ on:
 
           Our roadmap is driven entirely by adopter feedback. Whether you're using KubeStellar yourself or know organizations that could benefit from multi-cluster Kubernetes:
 
-          📋 <a href="https://forms.gle/VsG6aJpikf3NKjJH6" target="_blank"><b>Take our Multi-Cluster Survey</b></a> - Share your use cases and help shape our direction!
+          📋 **[Take our Multi-Cluster Survey](https://forms.gle/VsG6aJpikf3NKjJH6)** - Share your use cases and help shape our direction!
 
           ---
 
