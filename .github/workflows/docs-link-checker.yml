@@ -167,15 +167,14 @@ jobs:
               --title "$issue_title" \
               --body "$issue_body") || { echo "Failed to create issue for $url"; continue; }
 
-            # Add labels and assignee separately (sometimes inline options don't work)
+            # Add labels separately (sometimes inline options don't work)
             issue_num=$(echo "$issue_url" | grep -oE '[0-9]+$')
             if [ -n "$issue_num" ]; then
               gh issue edit "$issue_num" --repo kubestellar/docs \
                 --add-label "help wanted" \
                 --add-label "good first issue" \
                 --add-label "bug" \
-                --add-label "documentation" \
-                --add-assignee "copilot" || echo "Failed to update issue #$issue_num"
+                --add-label "documentation" || echo "Failed to add labels to issue #$issue_num"
             fi
 
             # Rate limit to avoid API issues
