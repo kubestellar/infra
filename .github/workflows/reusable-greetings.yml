@@ -54,7 +54,7 @@ on:
           **Find Issues to Work On:**
           - 🏷️ [`good first issue`](https://github.com/kubestellar/kubestellar/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) - Great for new contributors
           - 🙋 [`help wanted`](https://github.com/kubestellar/kubestellar/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) - Community help needed
-          - 🔍 [CLOTributor](https://clotributor.dev/search?project=kubestellar&foundation=cncf&page=1) - CNCF issue finder
+          - 🔍 [CLOTributor](https://clotributor.dev/search?project=kubestellar) - CNCF issue finder
 
           **Getting Started with KubeStellar:**
           - 📦 [Installation Guide](https://docs.kubestellar.io/stable/direct/get-started/)
