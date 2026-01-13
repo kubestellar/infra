@@ -72,7 +72,8 @@ jobs:
           cat results/*.json 2>/dev/null | jq -s 'add' > results/combined.json || echo '{"fail_map":{}}' > results/combined.json
 
           # Extract failed URLs with status and source pages
-          jq -r '.fail_map // {} | to_entries[] | "\(.key)|\(.value[0].status // "unknown")|\(.value[0].source // "unknown")"' results/combined.json > results/broken_links.txt || touch results/broken_links.txt
+          # In lychee's fail_map: key = source page, value[].url = broken URL
+          jq -r '.fail_map // {} | to_entries[] | .key as $source | .value[] | "\(.url)|\(.status // "unknown")|\($source)"' results/combined.json > results/broken_links.txt || touch results/broken_links.txt
 
           # Create a list of broken URL hashes for comparison
           while IFS='|' read -r url status source; do
