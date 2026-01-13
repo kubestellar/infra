@@ -61,6 +61,10 @@ jobs:
     steps:
       - name: Check and greet first-time contributor
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        env:
+          PR_MESSAGE: ${{ inputs.pr_message }}
+          ISSUE_MESSAGE: ${{ inputs.issue_message }}
+          CHECK_ORG_WIDE: ${{ inputs.check_org_wide }}
         with:
           script: |
             const { owner, repo } = context.repo;
@@ -79,10 +83,10 @@ jobs:
               return;
             }
 
-            console.log(`Checking contributions for ${author} (org-wide: ${{ inputs.check_org_wide }})`);
+            const checkOrgWide = process.env.CHECK_ORG_WIDE === 'true';
+            console.log(`Checking contributions for ${author} (org-wide: ${checkOrgWide})`);
 
             let hasContributed = false;
-            const checkOrgWide = ${{ inputs.check_org_wide }};
 
             if (checkOrgWide) {
               // Check org-wide contributions - any merged PR or closed issue
@@ -160,9 +164,7 @@ jobs:
 
             console.log(`${author} is a first-time contributor, posting greeting`);
 
-            const prMessage = `${{ inputs.pr_message }}`;
-            const issueMessage = `${{ inputs.issue_message }}`;
-            const message = isPR ? prMessage : issueMessage;
+            const message = isPR ? process.env.PR_MESSAGE : process.env.ISSUE_MESSAGE;
 
             await github.rest.issues.createComment({
               owner,
