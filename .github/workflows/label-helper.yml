@@ -6,10 +6,10 @@ on:
 
 permissions:
   contents: read
+  issues: write
+  pull-requests: write
 
 jobs:
   label-helper:
     uses: kubestellar/infra/.github/workflows/reusable-label-helper.yml@main
-    permissions:
-      issues: write
-      pull-requests: write
+    secrets: inherit
