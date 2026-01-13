@@ -1,0 +1,103 @@
+name: Reusable Label Helper
+
+on:
+  workflow_call:
+    inputs:
+      valid_kinds:
+        description: 'Comma-separated list of valid kind labels'
+        required: false
+        type: string
+        default: 'api-change,bug,cleanup,deprecation,documentation,failing-test,feature,flake,regression,support,test'
+      valid_areas:
+        description: 'Comma-separated list of valid area labels'
+        required: false
+        type: string
+        default: 'dependency,cli,api-lifecycle,core,sharding,workspace,scheduler,placement,policy,syncer,licensing'
+
+permissions:
+  contents: read
+
+jobs:
+  label-helper:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Check for invalid label commands
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        env:
+          VALID_KINDS: ${{ inputs.valid_kinds }}
+          VALID_AREAS: ${{ inputs.valid_areas }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const comment = context.payload.comment?.body || '';
+            const itemNumber = context.payload.issue?.number;
+            const commentAuthor = context.payload.comment?.user?.login;
+
+            if (!comment || !itemNumber) {
+              console.log('No comment or item number found');
+              return;
+            }
+
+            // Skip bot comments
+            if (commentAuthor?.endsWith('[bot]') || commentAuthor === 'github-actions') {
+              console.log(`Skipping bot comment from ${commentAuthor}`);
+              return;
+            }
+
+            const validKinds = process.env.VALID_KINDS.split(',').map(k => k.trim());
+            const validAreas = process.env.VALID_AREAS.split(',').map(a => a.trim());
+
+            // Check for /kind commands
+            const kindMatches = comment.match(/\/kind\s+(\S+)/gi) || [];
+            const areaMatches = comment.match(/\/area\s+(\S+)/gi) || [];
+
+            const invalidKinds = [];
+            const invalidAreas = [];
+
+            for (const match of kindMatches) {
+              const kindValue = match.replace(/\/kind\s+/i, '').trim();
+              if (!validKinds.includes(kindValue)) {
+                invalidKinds.push(kindValue);
+              }
+            }
+
+            for (const match of areaMatches) {
+              const areaValue = match.replace(/\/area\s+/i, '').trim();
+              if (!validAreas.includes(areaValue)) {
+                invalidAreas.push(areaValue);
+              }
+            }
+
+            if (invalidKinds.length === 0 && invalidAreas.length === 0) {
+              console.log('No invalid label commands found');
+              return;
+            }
+
+            // Build response message
+            let message = `@${commentAuthor} `;
+
+            if (invalidKinds.length > 0) {
+              message += `\n\n**Invalid kind label(s):** \`${invalidKinds.join('`, `')}\`\n\n`;
+              message += '**Valid `/kind` options:**\n';
+              message += validKinds.map(k => `- \`/kind ${k}\``).join('\n');
+            }
+
+            if (invalidAreas.length > 0) {
+              message += `\n\n**Invalid area label(s):** \`${invalidAreas.join('`, `')}\`\n\n`;
+              message += '**Valid `/area` options:**\n';
+              message += validAreas.map(a => `- \`/area ${a}\``).join('\n');
+            }
+
+            message += '\n\n*Use one of the valid options above to label this issue/PR.*';
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: itemNumber,
+              body: message
+            });
+
+            console.log('Posted label helper response');

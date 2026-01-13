@@ -16,11 +16,26 @@ on:
 
           ✅ **PR Title** - Must start with an emoji: ✨ (feature), 🐛 (bug fix), 📖 (docs), 🌱 (infra/tests), ⚠️ (breaking change)
 
-          **Helpful resources:**
-          - 📚 [Contributing Guide](https://docs.kubestellar.io/stable/direct/contribute/)
-          - 🪜 [Contributor Ladder](https://docs.kubestellar.io/stable/direct/contribute/#contributor-ladder)
-          - 💬 [Slack - #kubestellar-dev](https://cloud-native.slack.com/channels/kubestellar-dev) (CNCF workspace)
-          - 📖 [CONTRIBUTING.md](https://github.com/kubestellar/kubestellar/blob/main/CONTRIBUTING.md)
+          **Getting Started with KubeStellar:**
+          - 📦 [Installation Guide](https://docs.kubestellar.io/stable/direct/get-started/)
+          - 📖 [Documentation](https://docs.kubestellar.io/)
+          - 🎬 [YouTube - Getting Started & Contributing](https://www.youtube.com/@kubestellar)
+
+          **Contributor Resources:**
+          - 📚 [Contributor Handbook](https://kubestellar.io/contribute-handbook)
+          - 🪜 [Contributor Ladder](https://kubestellar.io/ladder)
+          - 🎓 [Mentorship Programs (LFX, GSoC)](https://kubestellar.io/programs)
+          - 💬 [Slack - #kubestellar-dev](https://cloud-native.slack.com/archives/C097094RZ3M)
+
+          ---
+
+          🌟 **Help KubeStellar Grow - We Need Adopters!**
+
+          Our roadmap is driven entirely by adopter feedback. Whether you're using KubeStellar yourself or know someone who could benefit from multi-cluster Kubernetes:
+
+          📋 **[Take our Multi-Cluster Survey](https://forms.gle/VsG6aJpikf3NKjJH6)** - Share your use cases and help shape our direction!
+
+          ---
 
           A maintainer will review your PR soon. Feel free to ask questions in the comments or on Slack!
       issue_message:
@@ -36,11 +51,35 @@ on:
           ```
           This will automatically assign the issue to you. Use `/unassign` to remove yourself.
 
-          **Helpful resources:**
-          - 📚 [Documentation](https://docs.kubestellar.io/)
-          - 🪜 [Contributor Ladder](https://docs.kubestellar.io/stable/direct/contribute/#contributor-ladder)
-          - 💬 [Slack - #kubestellar-dev](https://cloud-native.slack.com/channels/kubestellar-dev) (CNCF workspace)
-          - 🏷️ Look for issues labeled [`good first issue`](https://github.com/kubestellar/kubestellar/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) to get started!
+          **Find Issues to Work On:**
+          - 🏷️ [`good first issue`](https://github.com/kubestellar/kubestellar/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) - Great for new contributors
+          - 🙋 [`help wanted`](https://github.com/kubestellar/kubestellar/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) - Community help needed
+          - 🔍 [CLOTributor](https://clotributor.dev/search?project=kubestellar&foundation=cncf&page=1) - CNCF issue finder
+
+          **Getting Started with KubeStellar:**
+          - 📦 [Installation Guide](https://docs.kubestellar.io/stable/direct/get-started/)
+          - 📖 [Documentation](https://docs.kubestellar.io/)
+          - 🎬 [YouTube - Getting Started & Contributing](https://www.youtube.com/@kubestellar)
+
+          **Contributor Resources:**
+          - 📚 [Contributor Handbook](https://kubestellar.io/contribute-handbook)
+          - 🪜 [Contributor Ladder](https://kubestellar.io/ladder)
+          - 🎓 [Mentorship Programs (LFX, GSoC)](https://kubestellar.io/programs)
+          - 💬 [Slack - #kubestellar-dev](https://cloud-native.slack.com/archives/C097094RZ3M)
+
+          **For Maintainers - Label Commands:**
+          - `/good-first-issue` - Mark this issue as suitable for new contributors
+          - `/help-wanted` - Mark this issue as needing community help
+
+          ---
+
+          🌟 **Help KubeStellar Grow - We Need Adopters!**
+
+          Our roadmap is driven entirely by adopter feedback. Whether you're using KubeStellar yourself or know organizations that could benefit from multi-cluster Kubernetes:
+
+          📋 **[Take our Multi-Cluster Survey](https://forms.gle/VsG6aJpikf3NKjJH6)** - Share your use cases and help shape our direction!
+
+          ---
 
           We're excited to have you in our community!
       check_org_wide:
