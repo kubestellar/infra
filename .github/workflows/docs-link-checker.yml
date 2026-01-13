@@ -169,7 +169,6 @@ jobs:
               --label "good first issue" \
               --label "bug" \
               --label "documentation" \
-              --assignee copilot \
               --body "$issue_body" || echo "Failed to create issue for $url"
 
             # Rate limit to avoid API issues
