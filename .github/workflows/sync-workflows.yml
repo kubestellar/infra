@@ -29,8 +29,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_SYNC_TOKEN }}
         run: |
-          # Get all repos in org, excluding .github, infra, and archived repos
-          repos=$(gh repo list kubestellar --limit 100 --json name,isArchived --jq '[.[] | select(.isArchived == false) | .name | select(. != ".github" and . != "infra")]')
+          # Get all repos in org, excluding .github, infra, private repos, and archived repos
+          # Private repos (core, homebrew-kubestellar) are excluded because some workflows like scorecard don't work with them
+          repos=$(gh repo list kubestellar --limit 100 --json name,isArchived,isPrivate --jq '[.[] | select(.isArchived == false and .isPrivate == false) | .name | select(. != ".github" and . != "infra")]')
           echo "repos=$repos" >> $GITHUB_OUTPUT
           echo "Found repos: $repos"
 
