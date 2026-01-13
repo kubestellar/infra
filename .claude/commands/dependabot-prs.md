@@ -8,10 +8,15 @@ Check and manage dependabot PRs across kubestellar repos.
 ## Steps
 
 ### 1. Check all repos for dependabot PRs
+
+Get all active (non-archived) repos and check each for dependabot PRs:
 ```bash
-for repo in kubestellar kubeflex ui docs infra ocm-status-addon; do
-  echo "=== kubestellar/$repo ==="
-  unset GITHUB_TOKEN && gh pr list --repo kubestellar/$repo --author dependabot --state open 2>/dev/null || echo "No access or no PRs"
+unset GITHUB_TOKEN && for repo in $(gh api orgs/kubestellar/repos --paginate --jq '.[] | select(.archived == false) | .name' | sort); do
+  prs=$(unset GITHUB_TOKEN && gh pr list --repo kubestellar/$repo --author dependabot --state open --json number,title 2>/dev/null)
+  if [ "$prs" != "[]" ] && [ -n "$prs" ]; then
+    echo "=== kubestellar/$repo ==="
+    echo "$prs" | jq -r '.[] | "  #\(.number): \(.title)"'
+  fi
 done
 ```
 
