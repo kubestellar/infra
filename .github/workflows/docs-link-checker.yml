@@ -65,8 +65,14 @@ jobs:
           echo "Processing results..."
           cat results/*.json 2>/dev/null | jq -s 'add' > results/combined.json || echo '{"fail_map":{}}' > results/combined.json
 
-          # Extract failed URLs
+          # Extract failed URLs with their hashes
           jq -r '.fail_map // {} | to_entries[] | "\(.key)|\(.value[0].status // "unknown")"' results/combined.json > results/broken_links.txt || touch results/broken_links.txt
+
+          # Create a list of broken URL hashes for comparison
+          while IFS='|' read -r url status; do
+            [ -z "$url" ] && continue
+            echo "$url" | md5sum | cut -c1-8
+          done < results/broken_links.txt > results/broken_hashes.txt
 
           echo "Found broken links:"
           cat results/broken_links.txt || echo "None"
@@ -74,6 +80,50 @@ jobs:
           # Count broken links
           broken_count=$(wc -l < results/broken_links.txt | tr -d ' ')
           echo "broken_count=$broken_count" >> $GITHUB_OUTPUT
+
+      - name: Close fixed link issues
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_SYNC_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          echo "Checking for issues with fixed links..."
+
+          # Get all open issues with "Broken link:" in the title
+          gh issue list --repo kubestellar/docs \
+            --search "Broken link: in:title" \
+            --state open \
+            --json number,title,body \
+            --limit 100 > results/open_issues.json || echo "[]" > results/open_issues.json
+
+          # Process each open issue
+          jq -c '.[]' results/open_issues.json | while read -r issue; do
+            number=$(echo "$issue" | jq -r '.number')
+            title=$(echo "$issue" | jq -r '.title')
+            body=$(echo "$issue" | jq -r '.body')
+
+            # Extract the hash from the issue body
+            issue_hash=$(echo "$body" | grep -oP '(?<=Hash:\*\* )[a-f0-9]+' || echo "")
+
+            if [ -z "$issue_hash" ]; then
+              echo "Could not find hash in issue #$number, skipping"
+              continue
+            fi
+
+            # Check if this hash is still in our broken links
+            if grep -q "^${issue_hash}$" results/broken_hashes.txt 2>/dev/null; then
+              echo "Issue #$number: Link still broken (hash: $issue_hash)"
+            else
+              echo "Issue #$number: Link appears to be fixed, closing..."
+              gh issue close "$number" --repo kubestellar/docs \
+                --comment "✅ This link appears to be fixed! Verified by the automated link checker.
+
+If this was closed in error, please reopen the issue." || echo "Failed to close issue #$number"
+              sleep 1
+            fi
+          done
+
+          echo "Done checking for fixed links"
 
       - name: Create issues for broken links
         if: steps.check.outputs.broken_count > 0
@@ -88,10 +138,14 @@ jobs:
 
             # Create a unique identifier for the issue
             url_hash=$(echo "$url" | md5sum | cut -c1-8)
-            issue_title="🐛 Broken link: $url"
+            issue_title="🐛 Broken link: $(echo "$url" | cut -c1-60)..."
 
-            # Check if issue already exists (open or closed recently)
-            existing=$(gh issue list --repo kubestellar/docs --search "Broken link: $url_hash in:title" --state all --json number --jq '.[0].number' 2>/dev/null || echo "")
+            # Check if issue already exists (open)
+            existing=$(gh issue list --repo kubestellar/docs \
+              --search "Hash:** $url_hash in:body" \
+              --state open \
+              --json number \
+              --jq '.[0].number' 2>/dev/null || echo "")
 
             if [ -n "$existing" ] && [ "$existing" != "null" ]; then
               echo "Issue already exists for $url (issue #$existing)"
@@ -105,14 +159,14 @@ jobs:
               --label "help wanted,bug,documentation" \
               --body "## Broken Link Detected
 
-**URL:** $url
+**URL:** \`$url\`
 **Status:** $status
 **Hash:** $url_hash
 
 This broken link was automatically detected by the link checker workflow.
 
 ### How to fix
-1. Find where this URL is referenced in the docs
+1. Search for this URL in the docs repository
 2. Either update the URL to a working one, or remove the reference if no longer relevant
 3. Submit a PR with the fix
 
