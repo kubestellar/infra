@@ -33,7 +33,7 @@ presubmits:
               - -strict
 
     - name: pull-infra-prow-labelsync
-      cluster: prow
+      cluster: default
       labels:
         app: label-sync
       decorate: true
