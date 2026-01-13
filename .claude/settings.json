@@ -43,7 +43,8 @@
       "Bash(podman images:*)",
       "Bash(podman ps:*)",
       "Bash(curl:*)",
-      "Bash(jq:*)"
+      "Bash(jq:*)",
+      "Bash(xargs:*)"
     ]
   }
 }
