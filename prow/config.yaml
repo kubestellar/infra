@@ -1,6 +1,5 @@
 prowjob_namespace: prow
 pod_namespace: test-pods
-job_config_path: prow/jobs
 
 plank:
   pod_pending_timeout: 60m
@@ -235,6 +234,7 @@ periodics:
   - interval: 60m  # Existing echo-test job
     agent: kubernetes
     name: echo-test
+    decorate: true
     spec:
       containers:
         - image: ghcr.io/kubestellar/infra/alpine:3.22.0
