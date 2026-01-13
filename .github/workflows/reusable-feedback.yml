@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
-      issues: write
       contents: read
     steps:
       - name: Comment feedback request
