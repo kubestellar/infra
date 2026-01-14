@@ -16,7 +16,6 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Validate PR Title Format
-        id: validate
         env:
           TITLE: ${{ github.event.pull_request.title }}
         run: |
@@ -24,7 +23,6 @@ jobs:
 
           if [ -z "${TITLE}" ]; then
             echo "Error: PR title cannot be empty."
-            echo "error=empty" >> "$GITHUB_OUTPUT"
             exit 1
           fi
 
@@ -40,7 +38,6 @@ jobs:
             echo "🌱 (indicates Infra/Tests/Other)"
             echo -n "Your title's first character is, in hex: "
             python3 -c "import os; print('%x' % ord(os.environ['TITLE'][0]))"
-            echo "error=missing_emoji" >> "$GITHUB_OUTPUT"
             exit 1
           fi
 
@@ -52,34 +49,36 @@ jobs:
         with:
           script: |
             const title = process.env.TITLE;
-            const body = `## ❌ PR Title Verification Failed
-
-            Your PR title does not follow the required format.
-
-            **Current title:** \`${title}\`
-
-            ### Required Format
-            PR titles must start with one of these emoji prefixes:
-
-            | Emoji | Meaning |
-            |-------|---------|
-            | ⚠️ | Breaking change |
-            | ✨ | Non-breaking feature |
-            | 🐛 | Patch fix / Bug fix |
-            | 📖 | Documentation |
-            | 🚀 | Release |
-            | 🌱 | Infra/Tests/Other |
-
-            ### How to Fix
-            Edit your PR title to start with the appropriate emoji. For example:
-            - \`✨ Add new feature for user authentication\`
-            - \`🐛 Fix crash when loading empty config\`
-            - \`📖 Update installation guide\`
-
-            You can edit the title by clicking the **Edit** button next to your PR title.
-
-            ---
-            *This comment was automatically posted by the PR Title Verifier workflow.*`;
+            const body = [
+              '## ❌ PR Title Verification Failed',
+              '',
+              'Your PR title does not follow the required format.',
+              '',
+              `**Current title:** \`${title}\``,
+              '',
+              '### Required Format',
+              'PR titles must start with one of these emoji prefixes:',
+              '',
+              '| Emoji | Meaning |',
+              '|-------|---------|',
+              '| ⚠️ | Breaking change |',
+              '| ✨ | Non-breaking feature |',
+              '| 🐛 | Patch fix / Bug fix |',
+              '| 📖 | Documentation |',
+              '| 🚀 | Release |',
+              '| 🌱 | Infra/Tests/Other |',
+              '',
+              '### How to Fix',
+              'Edit your PR title to start with the appropriate emoji. For example:',
+              '- `✨ Add new feature for user authentication`',
+              '- `🐛 Fix crash when loading empty config`',
+              '- `📖 Update installation guide`',
+              '',
+              'You can edit the title by clicking the **Edit** button next to your PR title.',
+              '',
+              '---',
+              '*This comment was automatically posted by the PR Title Verifier workflow.*'
+            ].join('\n');
 
             // Check if we already commented to avoid duplicates
             const comments = await github.rest.issues.listComments({
@@ -94,7 +93,6 @@ jobs:
             );
 
             if (botComment) {
-              // Update existing comment
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -102,7 +100,6 @@ jobs:
                 body: body
               });
             } else {
-              // Create new comment
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
