@@ -12,7 +12,7 @@ jobs:
   check-links:
     runs-on: ubuntu-latest
     steps:
-      - name: Check links on kubestellar.io
+      - name: Check links on all documentation sites
         id: check
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_SYNC_TOKEN }}
@@ -27,48 +27,51 @@ jobs:
           # Create output directory
           mkdir -p results
 
-          # Check kubestellar.io (main site)
-          echo "Checking kubestellar.io..."
-          ./lychee --no-progress --format json --output results/main.json \
-            --exclude "github.com.*edit" \
-            --exclude "linkedin.com" \
-            --exclude "twitter.com" \
-            --exclude "x.com" \
-            --exclude "slack.com" \
-            --exclude "forms.gle" \
-            --exclude "localhost" \
-            --exclude "127.0.0.1" \
-            --exclude "blog.kubestellar.io" \
-            --max-redirects 10 \
-            --max-concurrency 2 \
-            --timeout 60 \
-            --retry-wait-time 10 \
-            --max-retries 5 \
-            --user-agent "Mozilla/5.0 (compatible; KubeStellarLinkChecker/1.0)" \
-            "https://kubestellar.io" || true
+          # Function to run lychee with common options
+          run_lychee() {
+            local output_file="$1"
+            local url="$2"
+            ./lychee --no-progress --format json --output "$output_file" \
+              --exclude 'github.com.*edit' \
+              --exclude 'linkedin.com' \
+              --exclude 'twitter.com' \
+              --exclude 'x.com' \
+              --exclude 'slack.com' \
+              --exclude 'forms.gle' \
+              --exclude 'localhost' \
+              --exclude '127.0.0.1' \
+              --exclude 'blog.kubestellar.io' \
+              --max-redirects 10 \
+              --max-concurrency 2 \
+              --timeout 60 \
+              --retry-wait-time 10 \
+              --max-retries 5 \
+              --user-agent "Mozilla/5.0 (compatible; KubeStellarLinkChecker/1.0)" \
+              "$url" || true
+          }
 
-          # Check docs site
-          echo "Checking docs.kubestellar.io..."
-          ./lychee --no-progress --format json --output results/docs.json \
-            --exclude "github.com.*edit" \
-            --exclude "linkedin.com" \
-            --exclude "twitter.com" \
-            --exclude "x.com" \
-            --exclude "slack.com" \
-            --exclude "forms.gle" \
-            --exclude "localhost" \
-            --exclude "127.0.0.1" \
-            --exclude "blog.kubestellar.io" \
-            --max-redirects 10 \
-            --max-concurrency 2 \
-            --timeout 60 \
-            --retry-wait-time 10 \
-            --max-retries 5 \
-            --user-agent "Mozilla/5.0 (compatible; KubeStellarLinkChecker/1.0)" \
-            "https://docs.kubestellar.io" || true
+          # Check kubestellar.io main site (landing page)
+          echo "=== Checking kubestellar.io (main site) ==="
+          run_lychee "results/main.json" "https://kubestellar.io"
 
-          # Combine and extract 404 errors
-          echo "Processing results..."
+          # Check KubeStellar docs
+          echo "=== Checking kubestellar.io/docs (KubeStellar docs) ==="
+          run_lychee "results/kubestellar-docs.json" "https://kubestellar.io/docs"
+
+          # Check a2a docs
+          echo "=== Checking kubestellar.io/docs/a2a (A2A docs) ==="
+          run_lychee "results/a2a-docs.json" "https://kubestellar.io/docs/a2a"
+
+          # Check kubeflex docs
+          echo "=== Checking kubestellar.io/docs/kubeflex (KubeFlex docs) ==="
+          run_lychee "results/kubeflex-docs.json" "https://kubestellar.io/docs/kubeflex"
+
+          # Check multi-plugin docs
+          echo "=== Checking kubestellar.io/docs/multi-plugin (Multi-Plugin docs) ==="
+          run_lychee "results/multi-plugin-docs.json" "https://kubestellar.io/docs/multi-plugin"
+
+          # Combine and extract errors
+          echo "=== Processing results ==="
           cat results/*.json 2>/dev/null | jq -s 'add' > results/combined.json || echo '{"fail_map":{}}' > results/combined.json
 
           # Extract failed URLs with status and source pages
@@ -81,12 +84,13 @@ jobs:
             echo "$url" | md5sum | cut -c1-8
           done < results/broken_links.txt > results/broken_hashes.txt
 
-          echo "Found broken links:"
+          echo "=== Broken links found ==="
           cat results/broken_links.txt || echo "None"
 
           # Count broken links
           broken_count=$(wc -l < results/broken_links.txt | tr -d ' ')
           echo "broken_count=$broken_count" >> $GITHUB_OUTPUT
+          echo "Total broken links: $broken_count"
 
       - name: Close fixed link issues
         env:
