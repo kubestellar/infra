@@ -2,7 +2,7 @@ name: Docs Link Checker
 
 on:
   schedule:
-    - cron: '0 6 * * 1'  # Every Monday at 6 AM UTC
+    - cron: '0 6 * * *'  # Every day at 6 AM UTC
   workflow_dispatch:
 
 permissions:
@@ -179,10 +179,16 @@ jobs:
                 --add-label "good first issue" \
                 --add-label "bug" \
                 --add-label "documentation" || echo "Failed to add labels to issue #$issue_num"
+
+              # Trigger Copilot to fix the broken link
+              echo "Triggering Copilot on issue #$issue_num..."
+              gh issue comment "$issue_num" --repo kubestellar/docs \
+                --body "@copilot please fix this broken link by updating the URL in the source file." \
+                || echo "Failed to trigger Copilot on issue #$issue_num"
             fi
 
             # Rate limit to avoid API issues
-            sleep 2
+            sleep 3
           done < results/broken_links.txt
 
           echo "Done processing broken links"
