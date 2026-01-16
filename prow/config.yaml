@@ -61,7 +61,7 @@ sinker:
 
 deck:
   spyglass:
-    gcs_browser_prefix: "https://gcsweb.kubestellar.io/prow-logs/"
+    gcs_browser_prefix: "https://gcsweb.kubestellar.io/s3/"
     lenses:
       - required_files:
           - ^(?:started|finished)\.json$
