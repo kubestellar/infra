@@ -1,0 +1,42 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    # Allow HTTP access for presigned URLs (they use http:// not https://)
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  name: minio
+  namespace: prow
+spec:
+  rules:
+  # External access via minio.kubestellar.io
+  - host: minio.kubestellar.io
+    http:
+      paths:
+      - backend:
+          service:
+            name: minio
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+  # Workaround for presigned URLs that use internal hostname
+  # Users need to add "129.80.226.250 minio.prow.svc.cluster.local" to /etc/hosts
+  - host: minio.prow.svc.cluster.local
+    http:
+      paths:
+      - backend:
+          service:
+            name: minio
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - minio.kubestellar.io
+    secretName: minio-tls
