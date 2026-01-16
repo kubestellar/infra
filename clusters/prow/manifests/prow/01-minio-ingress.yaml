@@ -7,26 +7,12 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
-    # Allow HTTP access for presigned URLs (they use http:// not https://)
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
   name: minio
   namespace: prow
 spec:
   rules:
-  # External access via minio.kubestellar.io
+  # External access to MinIO for presigned URLs and artifact viewing
   - host: minio.kubestellar.io
-    http:
-      paths:
-      - backend:
-          service:
-            name: minio
-            port:
-              number: 80
-        path: /
-        pathType: Prefix
-  # Workaround for presigned URLs that use internal hostname
-  # Users need to add "129.80.226.250 minio.prow.svc.cluster.local" to /etc/hosts
-  - host: minio.prow.svc.cluster.local
     http:
       paths:
       - backend:

@@ -108,6 +108,11 @@ spec:
             - --kubeconfig=/etc/kubeconfigs/kubeconfig
             - --oauth-url=/github-login
             - --github-oauth-config-file=/etc/github-oauth/secret
+          env:
+            # Override MinIO endpoint for presigned URL generation
+            # This ensures presigned URLs use the external hostname instead of internal
+            - name: MINIO_SERVER_URL
+              value: "https://minio.kubestellar.io"
           ports:
             - name: http
               containerPort: 8080
