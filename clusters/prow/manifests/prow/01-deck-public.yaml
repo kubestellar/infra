@@ -18,6 +18,7 @@ rules:
       - get
       - list
       - watch
+      - create
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -95,7 +96,7 @@ spec:
             - --job-config-path=/etc/job-config
             - --spyglass=true
             - --s3-credentials-file=/etc/s3-credentials/service-account.json
-            - --rerun-creates-job=false
+            - --rerun-creates-job=true
             - --show-hidden=false
             - --github-token-path=/etc/github/token
             - --github-endpoint=http://ghproxy
