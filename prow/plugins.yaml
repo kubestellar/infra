@@ -23,15 +23,8 @@ lgtm:
     # preserves lgtm on rebase or squash
     store_tree_hash: true
 
-dco:
-  # Repo-specific config - trusted_apps for Copilot
-  # Note: trusted_apps doesn't seem to work, using GitHub Action as workaround
-  kubestellar/kubestellar:
-    trusted_apps:
-      - Copilot
-  kubestellar/kubeflex:
-    trusted_apps:
-      - Copilot
+# dco trusted_apps doesn't work - see https://github.com/kubernetes-sigs/prow/issues/605
+# Using GitHub Action workaround instead (kubestellar/infra reusable-copilot-dco.yml)
 
 # config_updater will automatically update the config configmap when config.yaml changes
 config_updater:
