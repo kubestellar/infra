@@ -6,7 +6,8 @@ on:
 jobs:
   copilot-dco:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.user.login == 'copilot-swe-agent[bot]'
+    # Check for Copilot: 'app/copilot-swe-agent' or 'copilot-swe-agent[bot]'
+    if: contains(github.event.pull_request.user.login, 'copilot')
     steps:
       - name: Set DCO status for Copilot
         uses: actions/github-script@v7
