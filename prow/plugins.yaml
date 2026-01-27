@@ -24,21 +24,14 @@ lgtm:
     store_tree_hash: true
 
 dco:
-  # Repo-specific config takes precedence
+  # Repo-specific config - trusted_apps for Copilot
+  # Note: trusted_apps doesn't seem to work, using GitHub Action as workaround
   kubestellar/kubestellar:
-    skip_dco_check_for_collaborators: true
     trusted_apps:
       - Copilot
-      - Copilot[bot]
-      - copilot
-      - copilot-swe-agent
   kubestellar/kubeflex:
-    skip_dco_check_for_collaborators: true
     trusted_apps:
       - Copilot
-      - Copilot[bot]
-      - copilot
-      - copilot-swe-agent
 
 # config_updater will automatically update the config configmap when config.yaml changes
 config_updater:
