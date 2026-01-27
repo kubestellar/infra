@@ -24,9 +24,11 @@ lgtm:
     store_tree_hash: true
 
 dco:
-  kubestellar:  # Org-wide
-    # Trust GitHub Copilot app - skip DCO check for Copilot-authored commits
-    # Note: commit author is "Copilot", not "copilot-swe-agent" (which is the PR author)
+  # Repo-specific config takes precedence
+  kubestellar/kubestellar:
+    trusted_apps:
+      - Copilot
+  kubestellar/kubeflex:
     trusted_apps:
       - Copilot
 
