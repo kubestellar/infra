@@ -25,9 +25,10 @@ lgtm:
 
 dco:
   kubestellar:  # Org-wide
-    # Trust GitHub Copilot app - skip DCO check for Copilot-authored PRs
+    # Trust GitHub Copilot app - skip DCO check for Copilot-authored commits
+    # Note: commit author is "Copilot", not "copilot-swe-agent" (which is the PR author)
     trusted_apps:
-      - copilot-swe-agent
+      - Copilot
 
 # config_updater will automatically update the config configmap when config.yaml changes
 config_updater:
