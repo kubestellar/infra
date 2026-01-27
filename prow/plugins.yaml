@@ -28,9 +28,15 @@ dco:
   kubestellar/kubestellar:
     trusted_apps:
       - Copilot
+      - Copilot[bot]
+      - copilot
+      - copilot-swe-agent
   kubestellar/kubeflex:
     trusted_apps:
       - Copilot
+      - Copilot[bot]
+      - copilot
+      - copilot-swe-agent
 
 # config_updater will automatically update the config configmap when config.yaml changes
 config_updater:
