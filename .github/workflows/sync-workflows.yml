@@ -63,7 +63,7 @@ jobs:
           mkdir -p target/.github/workflows
 
           # List of workflows to sync
-          WORKFLOWS="add-help-wanted.yml assignment-helper.yml feedback.yml greetings.yml label-helper.yml pr-verifier.yml pr-verify-title.yml scorecard.yml stale.yml"
+          WORKFLOWS="add-help-wanted.yml assignment-helper.yml copilot-dco.yml feedback.yml greetings.yml label-helper.yml pr-verifier.yml pr-verify-title.yml scorecard.yml stale.yml"
 
           changed=false
           for wf in $WORKFLOWS; do
@@ -97,6 +97,7 @@ jobs:
             These workflows call reusable workflows from `kubestellar/infra`:
             - `add-help-wanted.yml`
             - `assignment-helper.yml`
+            - `copilot-dco.yml`
             - `feedback.yml`
             - `greetings.yml`
             - `label-helper.yml`
