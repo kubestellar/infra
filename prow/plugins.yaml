@@ -26,12 +26,14 @@ lgtm:
 dco:
   # Repo-specific config takes precedence
   kubestellar/kubestellar:
+    skip_dco_check_for_collaborators: true
     trusted_apps:
       - Copilot
       - Copilot[bot]
       - copilot
       - copilot-swe-agent
   kubestellar/kubeflex:
+    skip_dco_check_for_collaborators: true
     trusted_apps:
       - Copilot
       - Copilot[bot]
