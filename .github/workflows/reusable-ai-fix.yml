@@ -1,0 +1,149 @@
+name: AI Fix with Copilot (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      issue_number:
+        description: Issue number to assign to Copilot
+        required: false
+        type: string
+    secrets:
+      token:
+        description: GitHub token with write access
+        required: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  trigger-copilot:
+    runs-on: ubuntu-latest
+    # Only run for issues with ai-fix-requested label
+    if: |
+      (github.event_name == 'issues' &&
+       contains(github.event.issue.labels.*.name, 'ai-fix-requested') &&
+       contains(github.event.issue.labels.*.name, 'triage/accepted')) ||
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'workflow_call'
+    steps:
+      - name: Assign Copilot to Issue
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
+          script: |
+            let issueNumber;
+
+            if (context.eventName === 'workflow_dispatch' || context.eventName === 'workflow_call') {
+              issueNumber = parseInt('${{ inputs.issue_number }}', 10) || null;
+            } else if (context.eventName === 'issues') {
+              issueNumber = context.payload.issue?.number;
+            }
+
+            if (!issueNumber) {
+              core.info('No issue number found, skipping');
+              return;
+            }
+
+            // Get issue details
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+
+            // Check required labels
+            const labels = issue.labels.map(l => l.name);
+            const hasAiFixRequested = labels.includes('ai-fix-requested');
+            const hasTriageAccepted = labels.includes('triage/accepted');
+
+            if (!hasAiFixRequested || !hasTriageAccepted) {
+              core.info(`Issue #${issueNumber} missing required labels (ai-fix-requested: ${hasAiFixRequested}, triage/accepted: ${hasTriageAccepted})`);
+              return;
+            }
+
+            core.info(`Assigning Copilot to issue #${issueNumber}`);
+
+            // Add processing label
+            try {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                labels: ['ai-processing']
+              });
+            } catch (e) {
+              core.warning(`Could not add ai-processing label: ${e.message}`);
+            }
+
+            // Assign Copilot coding agent
+            const repo = `${context.repo.owner}/${context.repo.repo}`;
+            try {
+              await github.request('POST /repos/{owner}/{repo}/issues/{issue_number}/assignees', {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                assignees: ['copilot-swe-agent[bot]'],
+                agent_assignment: {
+                  target_repo: repo,
+                  base_branch: 'main',
+                },
+              });
+              core.info(`Assigned Copilot to issue #${issueNumber}`);
+
+              // Add success label
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                labels: ['ai-pr-ready']
+              });
+            } catch (e) {
+              core.error(`Could not assign Copilot: ${e.message}`);
+
+              // Add failure comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: `⚠️ Could not assign Copilot coding agent: ${e.message}\n\nThis may be because:\n- Copilot coding agent is not enabled for this repo\n- The issue doesn't have the required labels\n- Rate limiting`
+              });
+            }
+
+  update-issue-on-pr:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request_target'
+    steps:
+      - name: Link PR to Issue
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const author = pr.user.login;
+
+            // Only process Copilot PRs
+            if (!author.toLowerCase().includes('copilot')) {
+              return;
+            }
+
+            // Find linked issue from PR body
+            const body = pr.body || '';
+            const issueMatch = body.match(/(?:Fixes|Closes|Resolves)\s+#(\d+)/i);
+
+            if (!issueMatch) {
+              core.info('No linked issue found in PR body');
+              return;
+            }
+
+            const issueNumber = parseInt(issueMatch[1], 10);
+            core.info(`Found linked issue #${issueNumber}`);
+
+            // Add comment to issue
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: `🤖 Copilot has created PR #${pr.number} to address this issue.\n\n[View PR](${pr.html_url})`
+            });
