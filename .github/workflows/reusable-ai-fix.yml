@@ -20,7 +20,7 @@ permissions:
 jobs:
   trigger-copilot:
     runs-on: ubuntu-latest
-    # Only run for issues with ai-fix-requested label
+    # Only run for issues with ai-fix-requested AND triage/accepted labels
     if: |
       (github.event_name == 'issues' &&
        contains(github.event.issue.labels.*.name, 'ai-fix-requested') &&
@@ -55,15 +55,30 @@ jobs:
 
             // Check required labels
             const labels = issue.labels.map(l => l.name);
-            const hasAiFixRequested = labels.includes('ai-fix-requested');
-            const hasTriageAccepted = labels.includes('triage/accepted');
-
-            if (!hasAiFixRequested || !hasTriageAccepted) {
-              core.info(`Issue #${issueNumber} missing required labels (ai-fix-requested: ${hasAiFixRequested}, triage/accepted: ${hasTriageAccepted})`);
+            if (!labels.includes('ai-fix-requested')) {
+              core.info(`Issue #${issueNumber} missing ai-fix-requested label, skipping`);
               return;
             }
 
             core.info(`Assigning Copilot to issue #${issueNumber}`);
+
+            // Remove github-actions[bot] assignment if present (added by greeting workflow)
+            const botAssignees = (issue.assignees || [])
+              .filter(a => a.login === 'github-actions[bot]')
+              .map(a => a.login);
+            if (botAssignees.length > 0) {
+              try {
+                await github.rest.issues.removeAssignees({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  assignees: botAssignees
+                });
+                core.info(`Removed github-actions[bot] from issue #${issueNumber}`);
+              } catch (e) {
+                core.warning(`Could not remove github-actions[bot]: ${e.message}`);
+              }
+            }
 
             // Add processing label
             try {
