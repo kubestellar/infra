@@ -58,18 +58,9 @@ jobs:
               console.log('Assignment request detected in comment');
 
               const contributingUrl = '${{ inputs.contributing_guide_url }}';
-              const responseMessage = `👋 Hi @${commenter}!
+              const responseMessage = `Hi @${commenter}! To assign yourself, use the slash command: \`/assign\` (and \`/unassign\` to remove).
 
-            To assign yourself to this issue, please use the slash command:
-            \`\`\`
-            /assign
-            \`\`\`
-
-            This will automatically assign the issue to you via our Prow bot. You can also use \`/unassign\` to remove yourself from an issue.
-
-            📚 For more information about contributing, please check out our [Contributors Guide](${contributingUrl}).
-
-            Thank you for your interest in contributing to KubeStellar! 🚀`;
+            **Resources:** [Contributors Guide](${contributingUrl}) | [Console Docs](https://kubestellar.io/docs/console/overview/introduction) | [Knowledge Base](https://kubestellar.io/docs/console/programs/knowledge-base)`;
 
               await github.rest.issues.createComment({
                 owner,
