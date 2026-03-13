@@ -20,9 +20,21 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pull verifier image
+        run: docker pull ghcr.io/kubestellar/pr-verifier:v0.4.3
       - name: Verifier action
         id: verifier
-        uses: docker://ghcr.io/kubestellar/pr-verifier:v0.4.3
         continue-on-error: true
-        env:
-          INPUT_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          docker run --rm \
+            -e INPUT_GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
+            -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
+            -e GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" \
+            -e GITHUB_EVENT_PATH="/github/event.json" \
+            -e GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
+            -e GITHUB_SHA="$GITHUB_SHA" \
+            -e GITHUB_REF="$GITHUB_REF" \
+            -e GITHUB_WORKSPACE="/github/workspace" \
+            -v "$GITHUB_EVENT_PATH:/github/event.json:ro" \
+            -v "$GITHUB_WORKSPACE:/github/workspace:ro" \
+            ghcr.io/kubestellar/pr-verifier:v0.4.3
