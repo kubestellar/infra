@@ -145,7 +145,7 @@ jobs:
 
             // Find linked issue from PR body
             const body = pr.body || '';
-            const issueMatch = body.match(/(?:Fixes|Closes|Resolves)\s+#(\d+)/i);
+            const issueMatch = body.match(/(?:Fixes|Closes|Resolves)\s+(?:[\w-]+\/[\w-]+)?#(\d+)/i);
 
             if (!issueMatch) {
               core.info('No linked issue found in PR body');
@@ -162,3 +162,27 @@ jobs:
               issue_number: issueNumber,
               body: `🤖 Copilot has created PR #${pr.number} to address this issue.\n\n[View PR](${pr.html_url})`
             });
+
+            // Update issue labels: add ai-pr-active, remove ai-processing and ai-queued
+            try {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                labels: ['ai-pr-active']
+              });
+              for (const label of ['ai-processing', 'ai-queued']) {
+                try {
+                  await github.rest.issues.removeLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issueNumber,
+                    name: label
+                  });
+                } catch (e) {
+                  // Label may not exist on the issue, that's fine
+                }
+              }
+            } catch (e) {
+              core.warning(`Could not update issue labels: ${e.message}`);
+            }
