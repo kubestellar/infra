@@ -136,34 +136,56 @@ jobs:
           github-token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
           script: |
             const pr = context.payload.pull_request;
-            const author = pr.user.login;
 
-            // Only process Copilot PRs
-            if (!author.toLowerCase().includes('copilot')) {
+            // Only process Copilot bot PRs — strict identity check
+            const COPILOT_BOT_LOGIN = 'copilot-swe-agent[bot]';
+            if (pr.user.login !== COPILOT_BOT_LOGIN || pr.user.type !== 'Bot') {
+              core.info(`Skipping non-Copilot PR (author: ${pr.user.login}, type: ${pr.user.type})`);
               return;
             }
 
-            // Find linked issue from PR body
+            // Reject PRs from forks to prevent untrusted write actions
+            const prRepoFullName = pr.head.repo?.full_name || '';
+            const currentRepoFullName = `${context.repo.owner}/${context.repo.repo}`;
+            if (prRepoFullName !== currentRepoFullName) {
+              core.info(`Skipping fork PR (head: ${prRepoFullName})`);
+              return;
+            }
+
+            // Find linked issue from PR body, capturing optional owner/repo prefix
             const body = pr.body || '';
-            const issueMatch = body.match(/(?:Fixes|Closes|Resolves)\s+(?:[\w-]+\/[\w-]+)?#(\d+)/i);
+            const issueMatch = body.match(/(?:Fixes|Closes|Resolves)\s+(?:([\w-]+)\/([\w-]+))?#(\d+)/i);
 
             if (!issueMatch) {
               core.info('No linked issue found in PR body');
               return;
             }
 
-            const issueNumber = parseInt(issueMatch[1], 10);
+            const refOwner = issueMatch[1] || context.repo.owner;
+            const refRepo = issueMatch[2] || context.repo.repo;
+            const issueNumber = parseInt(issueMatch[3], 10);
+
+            // Only operate on issues in the current repo
+            if (refOwner !== context.repo.owner || refRepo !== context.repo.repo) {
+              core.info(`Skipping cross-repo issue reference: ${refOwner}/${refRepo}#${issueNumber}`);
+              return;
+            }
+
             core.info(`Found linked issue #${issueNumber}`);
 
-            // Add comment to issue
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              body: `🤖 Copilot has created PR #${pr.number} to address this issue.\n\n[View PR](${pr.html_url})`
-            });
+            // Add comment to issue — wrapped so label updates still run on failure
+            try {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: `🤖 Copilot has created PR #${pr.number} to address this issue.\n\n[View PR](${pr.html_url})`
+              });
+            } catch (e) {
+              core.warning(`Could not comment on issue #${issueNumber}: ${e.message}`);
+            }
 
-            // Update issue labels: add ai-pr-active, remove ai-processing and ai-queued
+            // Update issue labels — add and remove handled independently
             try {
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
@@ -171,18 +193,19 @@ jobs:
                 issue_number: issueNumber,
                 labels: ['ai-pr-active']
               });
-              for (const label of ['ai-processing', 'ai-queued']) {
-                try {
-                  await github.rest.issues.removeLabel({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    issue_number: issueNumber,
-                    name: label
-                  });
-                } catch (e) {
-                  // Label may not exist on the issue, that's fine
-                }
-              }
             } catch (e) {
-              core.warning(`Could not update issue labels: ${e.message}`);
+              core.warning(`Could not add ai-pr-active label: ${e.message}`);
+            }
+
+            for (const label of ['ai-processing', 'ai-queued']) {
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  name: label
+                });
+              } catch (e) {
+                // Label may not exist on the issue, that's fine
+              }
             }
