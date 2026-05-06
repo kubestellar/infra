@@ -58,6 +58,8 @@ jobs:
 
       - name: Sync workflows
         id: sync
+        env:
+          TARGET_REPO: ${{ matrix.repo }}
         run: |
           # Create workflows directory if it doesn't exist
           mkdir -p target/.github/workflows
@@ -65,8 +67,36 @@ jobs:
           # List of workflows to sync (including agentic workflows)
           WORKFLOWS="add-help-wanted.yml ai-fix.yml assignment-helper.yml copilot-automation.yml copilot-dco.yml feedback.yml greetings.yml label-helper.yml pr-verifier.yml pr-verify-title.yml scorecard.yml stale.yml"
 
+          # Load per-repo exclusions from config file
+          EXCLUSIONS_FILE="source/caller-workflows/workflow-exclusions.yml"
+          excluded_workflows=""
+          if [[ -f "$EXCLUSIONS_FILE" ]]; then
+            # Parse YAML: extract workflow names listed under the current repo
+            in_repo=false
+            while IFS= read -r line; do
+              if echo "$line" | grep -qE "^${TARGET_REPO}:"; then
+                in_repo=true
+                continue
+              elif echo "$line" | grep -qE '^[a-zA-Z]'; then
+                in_repo=false
+              fi
+              if $in_repo; then
+                wf_name=$(echo "$line" | sed -n 's/^[[:space:]]*- *//p')
+                if [[ -n "$wf_name" ]]; then
+                  excluded_workflows="$excluded_workflows $wf_name"
+                fi
+              fi
+            done < "$EXCLUSIONS_FILE"
+          fi
+
           changed=false
           for wf in $WORKFLOWS; do
+            # Skip workflows excluded for this repo
+            if echo "$excluded_workflows" | grep -qw "$wf"; then
+              echo "Skipped (excluded): $wf for $TARGET_REPO"
+              continue
+            fi
+
             src="source/caller-workflows/$wf"
             dst="target/.github/workflows/$wf"
 
