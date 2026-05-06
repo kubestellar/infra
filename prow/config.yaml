@@ -200,7 +200,8 @@ branch-protection:
           required_status_checks:
             contexts: []
           restrictions:
-            users: []
+            users:
+              - kubestellar-hive[bot]
             teams:
               - kubestellar/kubestellar-docs-maintainers
               - kubestellar/kubestellar-ui-admins
