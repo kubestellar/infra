@@ -1,0 +1,12 @@
+# Per-repo workflow exclusions.
+# Workflows listed under a repo name will NOT be synced to that repo.
+# Format:
+#   repo-name:
+#     - workflow-file.yml
+#
+# Example: to skip pr-verifier on console:
+#   console:
+#     - pr-verifier.yml
+
+console:
+  - pr-verifier.yml
