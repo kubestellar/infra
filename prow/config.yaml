@@ -199,12 +199,6 @@ branch-protection:
           protect: true
           required_status_checks:
             contexts: []
-          restrictions:
-            users:
-              - kubestellar-hive[bot]
-            teams:
-              - kubestellar/kubestellar-docs-maintainers
-              - kubestellar/kubestellar-ui-admins
           include:
             - "^main$"
             - "^dev$"
