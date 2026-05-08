@@ -195,14 +195,6 @@ branch-protection:
           include:
             - "^main$"
             - "^release-.+$"
-        docs:  # Added docs repository without DCO check
-          protect: true
-          required_status_checks:
-            contexts: []
-          include:
-            - "^main$"
-            - "^dev$"
-            - "^release-.+$"
 
 # decorate_all_jobs: true
 
