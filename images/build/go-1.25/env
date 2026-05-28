@@ -1,5 +1,6 @@
 # the tag used for the final image. Update the suffix when you want
 # a new version of the image to be built.
+# Diagnostic touch for kubestellar/infra#140 to test postsubmit triggering.
 BUILD_IMAGE_TAG=1.25.10-1
 # the Go version used for the images.
 GO_VERSION=1.25.10
