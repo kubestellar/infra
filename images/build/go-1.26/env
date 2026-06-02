@@ -5,3 +5,4 @@ BUILD_IMAGE_TAG=1.26.3-1
 GO_VERSION=1.26.3
 # the kindest image that matches the kind version above
 KINDEST_IMAGE=kindest/node:v1.35.1@sha256:05d7bcdefbda08b4e038f644c4df690cdac3fba8b06f8289f30e10026720a1ab
+# touch to force revisit
