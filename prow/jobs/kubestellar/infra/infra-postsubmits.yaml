@@ -4,7 +4,7 @@ postsubmits:
       max_concurrency: 1
       run_if_changed: "clusters/prow/"
       decorate: true
-      cluster: prow
+      cluster: default
       clone_uri: "https://github.com/kubestellar/infra.git"
       labels:
         preset-prow-kubeconfig: "true"
@@ -19,13 +19,13 @@ postsubmits:
               - name: KUBECONFIG
                 value: /etc/prow/kubeconfig/kubeconfig
               - name: KUBE_CONTEXT
-                value: prow
+                value: default
 
     - name: post-infra-deploy-build-cluster
       max_concurrency: 1
       run_if_changed: "clusters/build/"
       decorate: true
-      cluster: prow
+      cluster: default
       clone_uri: "https://github.com/kubestellar/infra.git"
       labels:
         preset-prow-kubeconfig: "true"
@@ -45,7 +45,7 @@ postsubmits:
     - name: post-infra-publish-images-1.23-build
       decorate: true
       clone_uri: "https://github.com/kubestellar/infra.git"
-      cluster: prow # GHCR credentials are only available here
+      cluster: default
       labels:
         preset-ghcr-credentials: "true"
       branches:
@@ -68,7 +68,7 @@ postsubmits:
     - name: post-infra-publish-images-1.24-build
       decorate: true
       clone_uri: "https://github.com/kubestellar/infra.git"
-      cluster: prow # GHCR credentials are only available here
+      cluster: default
       labels:
         preset-ghcr-credentials: "true"
       branches:
@@ -91,7 +91,7 @@ postsubmits:
     - name: post-infra-publish-images-1.25-build
       decorate: true
       clone_uri: "https://github.com/kubestellar/infra.git"
-      cluster: prow # GHCR credentials are only available here
+      cluster: default
       labels:
         preset-ghcr-credentials: "true"
       branches:
@@ -114,7 +114,7 @@ postsubmits:
     - name: post-infra-publish-images-1.26-build
       decorate: true
       clone_uri: "https://github.com/kubestellar/infra.git"
-      cluster: prow # GHCR credentials are only available here
+      cluster: default
       labels:
         preset-ghcr-credentials: "true"
       branches:
