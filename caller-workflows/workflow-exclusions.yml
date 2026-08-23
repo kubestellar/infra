@@ -10,3 +10,11 @@
 
 console:
   - pr-verifier.yml
+
+# hive carries a repo-local release-line pin on scorecard.yml
+# (push.branches: [main, v4], enforced by its Release Line Guard against
+# .github/release-lines.yml). The synced copy pins [main] only, so every sync
+# arrives guard-red on hive and cannot merge without hand-restoring the pin.
+# See kubestellar/hive#4616.
+hive:
+  - scorecard.yml
