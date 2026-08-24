@@ -10,3 +10,10 @@
 
 console:
   - pr-verifier.yml
+
+# hive carries a repo-local scorecard.yml: its Release Line Guard pins the
+# push trigger to [main, v4] (.github/release-lines.yml), and it SHA-pins the
+# reusable-scorecard ref. Syncing the infra copy clobbers both and turns the
+# guard red on every sync branch (kubestellar/hive#4616).
+hive:
+  - scorecard.yml
