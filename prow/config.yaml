@@ -105,10 +105,12 @@ tide:
     kubestellar/a2a: squash
     kubestellar/kubectl-plugin: squash
     kubestellar/docs: squash
+    hivecommons: squash  # org-wide default for hivecommons
   queries:
     # Org-wide query with DCO requirement
     - orgs:
         - kubestellar
+        - hivecommons
       labels:
         - lgtm
         - approved
@@ -192,6 +194,20 @@ branch-protection:
             users: []
             teams:
               - kubestellar/kubestellar-a2a-maintainers
+          include:
+            - "^main$"
+            - "^release-.+$"
+    hivecommons:
+      repos:
+        infra:
+          protect: true
+          required_status_checks:
+            contexts:
+              - dco
+          restrictions:
+            users: []
+            teams:
+              - hivecommons/hivecommons-admins
           include:
             - "^main$"
             - "^release-.+$"

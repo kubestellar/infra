@@ -6,17 +6,20 @@
 triggers:
   - repos:
       - kubestellar  # Org-wide: applies to all repos in the kubestellar org
+      - hivecommons  # Org-wide: applies to all repos in the hivecommons org
     only_org_members: true
 
 approve:
   - repos:
       - kubestellar  # Org-wide
+      - hivecommons  # Org-wide
     ignore_review_state: true
     require_self_approval: true
 
 lgtm:
   - repos:
       - kubestellar  # Org-wide
+      - hivecommons  # Org-wide
     # adds lgtm if GitHub review state is "Approve"
     # and removes lgtm if review state is "Request Changes"
     review_acts_as_lgtm: true
@@ -91,6 +94,28 @@ plugins:
     plugins:
       - config-updater  # Only infra needs config-updater for prow config sync
 
+  # Org-wide defaults - applies to ALL repos in the hivecommons org
+  # (no config-updater: prow config source of truth stays in kubestellar/infra)
+  hivecommons:
+    plugins:
+      - approve
+      - assign
+      - branchcleaner
+      - dco
+      - hold
+      - label
+      - lgtm
+      - lifecycle
+      - milestoneapplier
+      - override
+      - owners-label
+      - retitle
+      - size
+      - skip
+      - trigger
+      - verify-owners
+      - wip
+
 require_matching_label:
   - missing_label: do-not-merge/needs-kind
     org: kubestellar
@@ -105,6 +130,14 @@ require_matching_label:
 external_plugins:
   # Org-wide external plugins
   kubestellar:
+    - name: needs-rebase
+      events:
+        - pull_request
+    - name: cherrypicker
+      events:
+        - issue_comment
+        - pull_request
+  hivecommons:
     - name: needs-rebase
       events:
         - pull_request
