@@ -1,0 +1,7 @@
+# the tag used for the final image. Update the suffix when you want
+# a new version of the image to be built.
+BUILD_IMAGE_TAG=1.27.3-1
+# the Go version used for the images.
+GO_VERSION=1.27.3
+# the kindest image that matches the kind version above
+KINDEST_IMAGE=kindest/node:v1.35.8@sha256:07b2536e30b803ed61d1677a79df6115f798ce64c80f9e22f6ed45afd09323c0
