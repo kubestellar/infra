@@ -116,6 +116,7 @@ tide:
         - approved
       missingLabels:
         - "dco-signoff: no"
+        - no-dco  # hive-owned DCO verdict on hivecommons repos (hivecommons/hive#12542)
         - do-not-merge
         - do-not-merge/hold
         - do-not-merge/invalid-owners-file
@@ -203,7 +204,7 @@ branch-protection:
           protect: true
           required_status_checks:
             contexts:
-              - dco
+              - DCO  # DCO GitHub App; Prow's dco plugin is off for hivecommons
           restrictions:
             users: []
             teams:
