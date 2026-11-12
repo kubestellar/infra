@@ -101,7 +101,10 @@ plugins:
       - approve
       - assign
       - branchcleaner
-      - dco
+      # dco deliberately NOT enabled: hive owns the DCO signal for hivecommons
+      # (green `dco` / red `no-dco` labels written from the commit check,
+      # hivecommons/hive#12542); the required `DCO` status comes from the DCO
+      # GitHub App, not from this plugin.
       - hold
       - label
       - lgtm
