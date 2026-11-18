@@ -1,0 +1,91 @@
+# Only the post-infra-deploy-prow-cluster postsubmit of kubestellar/infra may
+# run a pod as test-pods/prow-deployer.
+#
+# Any ProwJob pod lands in test-pods, and a job's pod spec can name any
+# ServiceAccount there. Without this policy, a job defined anywhere (for
+# example a presubmit in a repo's .prow.yaml) could set
+# serviceAccountName: prow-deployer and rewrite the Prow deployments.
+#
+# How the deploy pod is identified:
+# - prow.k8s.io/type is reserved by Prow (job configs cannot set it), so
+#   requiring "postsubmit" rules out every presubmit, including ones from PRs.
+# - The other prow.k8s.io/* labels can be overridden by a job's "labels:"
+#   field, so they are checked but not trusted on their own.
+# - Prow appends a JOB_SPEC env var, built from the ProwJob's job name and
+#   refs, to every container it decorates. The refs come from the GitHub event,
+#   not from the job config. Every JOB_SPEC in the pod must name this job and
+#   the kubestellar/infra main branch, so a job from another repo cannot pass
+#   even if it adds its own JOB_SPEC.
+# - In-repo config is disabled for kubestellar/infra (prow/config.yaml), so
+#   only the static job config can define kubestellar/infra jobs.
+#
+# Like prow-deployer.yaml, this is applied by a cluster admin, not by the
+# postsubmit:
+#
+#   kubectl --context prow apply -f clusters/prow/manifests/deployer/
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: prow-deployer-only-for-deploy-job
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: test-pods
+    resourceRules:
+    - apiGroups: [""]
+      apiVersions: [v1]
+      operations: [CREATE, UPDATE]
+      resources: [pods]
+  # Only pods that run as prow-deployer are evaluated, so a problem in the
+  # expressions below can never block ordinary job pods.
+  matchConditions:
+  - name: uses-prow-deployer
+    expression: >-
+      has(object.spec.serviceAccountName) &&
+      object.spec.serviceAccountName == 'prow-deployer'
+  variables:
+  - name: wantLabels
+    expression: >-
+      {
+        'prow.k8s.io/type': 'postsubmit',
+        'prow.k8s.io/job': 'post-infra-deploy-prow-cluster',
+        'prow.k8s.io/refs.org': 'kubestellar',
+        'prow.k8s.io/refs.repo': 'infra',
+        'prow.k8s.io/refs.base_ref': 'main'
+      }
+  - name: hasDeployLabels
+    expression: >-
+      has(object.metadata.labels) &&
+      variables.wantLabels.all(k,
+        k in object.metadata.labels &&
+        object.metadata.labels[k] == variables.wantLabels[k])
+  - name: jobSpecs
+    expression: >-
+      (object.spec.containers +
+        (has(object.spec.initContainers) ? object.spec.initContainers : []))
+      .map(c, has(c.env) ? c.env : [])
+      .map(envs, envs.filter(e, e.name == 'JOB_SPEC'))
+      .filter(l, size(l) > 0)
+      .map(l, l.map(e, has(e.value) ? e.value : ''))
+  - name: hasDeployJobSpec
+    expression: >-
+      size(variables.jobSpecs) > 0 &&
+      variables.jobSpecs.all(l, l.all(v,
+        v.startsWith('{"type":"postsubmit","job":"post-infra-deploy-prow-cluster","buildid":"') &&
+        v.contains('"refs":{"org":"kubestellar","repo":"infra","repo_link":"https://github.com/kubestellar/infra","base_ref":"main",')))
+  validations:
+  - expression: variables.hasDeployLabels && variables.hasDeployJobSpec
+    message: >-
+      serviceAccountName prow-deployer is reserved for the kubestellar/infra
+      post-infra-deploy-prow-cluster postsubmit
+    reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: prow-deployer-only-for-deploy-job
+spec:
+  policyName: prow-deployer-only-for-deploy-job
+  validationActions: [Deny]

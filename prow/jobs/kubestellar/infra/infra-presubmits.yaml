@@ -59,3 +59,121 @@ presubmits:
         - name: oauth-token
           secret:
             secretName: github-token
+
+    # Image build checks. These used to live in the repo's .prow.yaml; they
+    # are static because in-repo config is disabled for kubestellar/infra
+    # (see in_repo_config in prow/config.yaml).
+    - name: pull-infra-images-1.23-build
+      decorate: true
+      clone_uri: "https://github.com/kubestellar/infra.git"
+      run_if_changed: '^images/build/go-1.23'
+      labels:
+        preset-goproxy: "true"
+      spec:
+        containers:
+          - image: quay.io/containers/buildah:v1.40.1
+            command:
+              - images/build/hack/build-image.sh
+              - go-1.23
+            # docker-in-docker needs privileged mode
+            securityContext:
+              privileged: true
+            env:
+              - name: DRY_RUN
+                value: '1'
+            resources:
+              requests:
+                memory: 1Gi
+                cpu: 1
+
+    - name: pull-infra-images-1.24-build
+      decorate: true
+      clone_uri: "https://github.com/kubestellar/infra.git"
+      run_if_changed: '^images/build/go-1.24'
+      labels:
+        preset-goproxy: "true"
+      spec:
+        containers:
+          - image: quay.io/containers/buildah:v1.40.1
+            command:
+              - images/build/hack/build-image.sh
+              - go-1.24
+            # docker-in-docker needs privileged mode
+            securityContext:
+              privileged: true
+            env:
+              - name: DRY_RUN
+                value: '1'
+            resources:
+              requests:
+                memory: 1Gi
+                cpu: 1
+
+    - name: pull-infra-images-1.25-build
+      decorate: true
+      clone_uri: "https://github.com/kubestellar/infra.git"
+      run_if_changed: '^images/build/go-1.25'
+      labels:
+        preset-goproxy: "true"
+      spec:
+        containers:
+          - image: quay.io/containers/buildah:v1.40.1
+            command:
+              - images/build/hack/build-image.sh
+              - go-1.25
+            # docker-in-docker needs privileged mode
+            securityContext:
+              privileged: true
+            env:
+              - name: DRY_RUN
+                value: '1'
+            resources:
+              requests:
+                memory: 1Gi
+                cpu: 1
+
+    - name: pull-infra-images-1.26-build
+      decorate: true
+      clone_uri: "https://github.com/kubestellar/infra.git"
+      run_if_changed: '^images/build/go-1.26'
+      labels:
+        preset-goproxy: "true"
+      spec:
+        containers:
+          - image: quay.io/containers/buildah:v1.42.2
+            command:
+              - images/build/hack/build-image.sh
+              - go-1.26
+            # docker-in-docker needs privileged mode
+            securityContext:
+              privileged: true
+            env:
+              - name: DRY_RUN
+                value: '1'
+            resources:
+              requests:
+                memory: 1Gi
+                cpu: 1
+
+    - name: pull-infra-images-1.27-build
+      decorate: true
+      clone_uri: "https://github.com/kubestellar/infra.git"
+      run_if_changed: '^images/build/go-1.27'
+      labels:
+        preset-goproxy: "true"
+      spec:
+        containers:
+          - image: quay.io/containers/buildah:v1.43.4
+            command:
+              - images/build/hack/build-image.sh
+              - go-1.27
+            # docker-in-docker needs privileged mode
+            securityContext:
+              privileged: true
+            env:
+              - name: DRY_RUN
+                value: '1'
+            resources:
+              requests:
+                memory: 1Gi
+                cpu: 1
