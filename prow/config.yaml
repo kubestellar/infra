@@ -46,9 +46,20 @@ plank:
           name: github-token
           key: cert
 
+# In-repo job config (.prow.yaml) is only loaded for the repos listed here.
+# kubestellar/infra must never be in this list: its deploy postsubmit runs as
+# the privileged test-pods/prow-deployer ServiceAccount, and the admission
+# policy in clusters/prow/manifests/deployer/ identifies that job by its
+# kubestellar/infra refs. Add a repo here only when it has a .prow.yaml with
+# jobs; the default for everything else is disabled.
 in_repo_config:
   enabled:
-    "*": true
+    kubestellar/galaxy: true
+    kubestellar/helm: true
+    kubestellar/kubectl-multi-plugin: true
+    kubestellar/kubeflex: true
+    kubestellar/kubestellar: true
+    kubestellar/ocm-status-addon: true
 
 sinker:
   # How often sinker resyncs, defaults to 1h
