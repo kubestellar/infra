@@ -6,20 +6,16 @@ postsubmits:
       decorate: true
       cluster: default
       clone_uri: "https://github.com/kubestellar/infra.git"
-      labels:
-        preset-prow-kubeconfig: "true"
       branches:
         - ^main$
       spec:
+        # in-cluster identity with least privilege, see
+        # clusters/prow/manifests/deployer/prow-deployer.yaml
+        serviceAccountName: prow-deployer
         containers:
-          - image: quay.io/kubermatic/build:go-1.20-node-18-6
+          - image: ghcr.io/kubestellar/infra/build:1.26.11-1
             command:
               - clusters/prow/hack/ci/deploy.sh
-            env:
-              - name: KUBECONFIG
-                value: /etc/prow/kubeconfig/kubeconfig
-              - name: KUBE_CONTEXT
-                value: default
 
     - name: post-infra-deploy-build-cluster
       max_concurrency: 1

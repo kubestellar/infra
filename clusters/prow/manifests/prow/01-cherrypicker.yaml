@@ -1,67 +1,79 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cherrypicker
-  namespace: "__PROW_NAMESPACE__"
   labels:
     app: cherrypicker
+  name: cherrypicker
+  namespace: __PROW_NAMESPACE__
 spec:
   replicas: 1
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: cherrypicker
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
   template:
     metadata:
       labels:
         app: cherrypicker
     spec:
-      terminationGracePeriodSeconds: 180
       containers:
-        - name: cherrypicker
-          image: us-docker.pkg.dev/k8s-infra-prow/images/cherrypicker:v20260430-7dfdc18c1
-          imagePullPolicy: Always
-          args:
-            - --dry-run=false
-            - --github-token-path=/etc/github/token
-            - --github-endpoint=http://ghproxy
-            - --github-endpoint=https://api.github.com
-            - --github-token-path=/etc/github/token
-            - --hmac-secret-file=/etc/github-hmac/token
-          ports:
-            - name: http
-              containerPort: 8888
-          volumeMounts:
-            - name: github-hmac
-              mountPath: /etc/github-hmac
-              readOnly: true
-            - name: github
-              mountPath: /etc/github
-              readOnly: true
-            - name: tmp
-              mountPath: /tmp
-      volumes:
-        - name: tmp
-          emptyDir: {}
-        - name: github-hmac
-          secret:
-            secretName: github-hmac-token
-        - name: github
-          secret:
-            secretName: github-ro-token
+      - args:
+        - --dry-run=false
+        - --github-endpoint=http://ghproxy
+        - --github-endpoint=https://api.github.com
+        - --github-app-id=$(GITHUB_APP_ID)
+        - --github-app-private-key-path=/etc/github/cert
+        env:
+        - name: GITHUB_APP_ID
+          valueFrom:
+            secretKeyRef:
+              key: appid
+              name: github-token
+        image: us-docker.pkg.dev/k8s-infra-prow/images/cherrypicker:v20260430-7dfdc18c1
+        imagePullPolicy: IfNotPresent
+        name: cherrypicker
+        ports:
+        - containerPort: 8888
+          name: http
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /etc/webhook
+          name: hmac
+          readOnly: true
+        - mountPath: /etc/github
+          name: github
+          readOnly: true
       nodeSelector:
-        kubermatic.io/stable: "true"
+        kubermatic.io/stable: 'true'
+      serviceAccount: cherrypicker
+      serviceAccountName: cherrypicker
+      terminationGracePeriodSeconds: 30
       tolerations:
-        - key: kubermatic.io/stable
-          operator: Exists
+      - key: kubermatic.io/stable
+        operator: Exists
+      volumes:
+      - name: hmac
+        secret:
+          secretName: hmac-token
+      - name: github
+        secret:
+          secretName: github-token
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: cherrypicker
-  namespace: "__PROW_NAMESPACE__"
+  namespace: __PROW_NAMESPACE__
 spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8888
   selector:
     app: cherrypicker
-  ports:
-    - port: 80
-      targetPort: 8888
+  type: ClusterIP

@@ -1,95 +1,109 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  namespace: "__PROW_NAMESPACE__"
   name: statusreconciler
+  namespace: __PROW_NAMESPACE__
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  namespace: "__PROW_NAMESPACE__"
   name: statusreconciler
+  namespace: __PROW_NAMESPACE__
 rules:
-  - apiGroups:
-      - "prow.k8s.io"
-    resources:
-      - prowjobs
-    verbs:
-      - create
+- apiGroups:
+  - prow.k8s.io
+  resources:
+  - prowjobs
+  verbs:
+  - create
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  namespace: "__PROW_NAMESPACE__"
   name: statusreconciler
+  namespace: __PROW_NAMESPACE__
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: statusreconciler
 subjects:
-  - kind: ServiceAccount
-    name: statusreconciler
+- kind: ServiceAccount
+  name: statusreconciler
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: "__PROW_NAMESPACE__"
-  name: statusreconciler
   labels:
     app: statusreconciler
+  name: statusreconciler
+  namespace: __PROW_NAMESPACE__
 spec:
   replicas: 1
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: statusreconciler
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
   template:
     metadata:
       labels:
         app: statusreconciler
     spec:
+      containers:
+      - args:
+        - --dry-run=false
+        - --continue-on-error=true
+        - --plugin-config=/etc/plugins/plugins.yaml
+        - --config-path=/etc/config/config.yaml
+        - --github-app-id=$(GITHUB_APP_ID)
+        - --github-app-private-key-path=/etc/github/cert
+        - --github-endpoint=http://ghproxy
+        - --github-endpoint=https://api.github.com
+        - --job-config-path=/etc/job-config
+        env:
+        - name: GITHUB_APP_ID
+          valueFrom:
+            secretKeyRef:
+              key: appid
+              name: github-token
+        image: us-docker.pkg.dev/k8s-infra-prow/images/status-reconciler:v20260430-7dfdc18c1
+        imagePullPolicy: Always
+        name: statusreconciler
+        volumeMounts:
+        - mountPath: /etc/github
+          name: github
+          readOnly: true
+        - mountPath: /etc/config
+          name: config
+          readOnly: true
+        - mountPath: /etc/job-config
+          name: job-config
+          readOnly: true
+        - mountPath: /etc/plugins
+          name: plugins
+          readOnly: true
+      nodeSelector:
+        kubermatic.io/stable: 'true'
+      serviceAccount: statusreconciler
       serviceAccountName: statusreconciler
       terminationGracePeriodSeconds: 180
-      containers:
-        - name: statusreconciler
-          image: us-docker.pkg.dev/k8s-infra-prow/images/status-reconciler:v20260430-7dfdc18c1
-          imagePullPolicy: Always
-          args:
-            - --dry-run=false
-            - --continue-on-error=true
-            - --plugin-config=/etc/plugins/plugins.yaml
-            - --config-path=/etc/config/config.yaml
-            - --github-token-path=/etc/github/token
-            - --github-endpoint=http://ghproxy
-            - --github-endpoint=https://api.github.com
-            - --job-config-path=/etc/job-config
-          volumeMounts:
-            - name: github
-              mountPath: /etc/github
-              readOnly: true
-            - name: config
-              mountPath: /etc/config
-              readOnly: true
-            - name: job-config
-              mountPath: /etc/job-config
-              readOnly: true
-            - name: plugins
-              mountPath: /etc/plugins
-              readOnly: true
-      volumes:
-        - name: github
-          secret:
-            secretName: github-token
-        - name: config
-          configMap:
-            name: config
-        - name: job-config
-          configMap:
-            name: job-config
-        - name: plugins
-          configMap:
-            name: plugins
-      nodeSelector:
-        kubermatic.io/stable: "true"
       tolerations:
-        - key: kubermatic.io/stable
-          operator: Exists
+      - key: kubermatic.io/stable
+        operator: Exists
+      volumes:
+      - name: github
+        secret:
+          secretName: github-token
+      - configMap:
+          name: config
+        name: config
+      - configMap:
+          name: job-config
+        name: job-config
+      - configMap:
+          name: plugins
+        name: plugins

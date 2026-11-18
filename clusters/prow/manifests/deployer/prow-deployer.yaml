@@ -1,0 +1,134 @@
+# Identity used by the post-infra-deploy-prow-cluster postsubmit
+# (clusters/prow/hack/ci/deploy.sh). It can only apply the objects in
+# clusters/prow/manifests/prow/ and cannot read Secrets.
+#
+# This file is NOT applied by the postsubmit (the deployer must not be able
+# to change its own permissions). A cluster admin applies it by hand:
+#
+#   kubectl --context prow apply -f clusters/prow/manifests/deployer/
+#
+# The "union" rules below exist because Kubernetes only lets a subject create
+# or update a Role/RoleBinding when it already holds every permission that
+# Role grants. They must stay equal to the union of the rules of the Roles in
+# clusters/prow/manifests/prow/. If a Role there gains a permission, add it
+# here in the same PR, or the deploy fails with a "forbidden: ... attempting
+# to grant RBAC permissions not currently held" error.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prow-deployer
+  namespace: test-pods
+imagePullSecrets:
+- name: github-pull-secret
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: prow-deployer
+  namespace: prow
+rules:
+# manage the Prow component objects
+- apiGroups: [""]
+  resources: [serviceaccounts, services, persistentvolumeclaims]
+  verbs: [get, create, patch]
+- apiGroups: [apps]
+  resources: [deployments]
+  verbs: [get, create, patch]
+- apiGroups: [batch]
+  resources: [cronjobs]
+  verbs: [get, create, patch]
+- apiGroups: [networking.k8s.io]
+  resources: [ingresses]
+  verbs: [get, create, patch]
+- apiGroups: [rbac.authorization.k8s.io]
+  resources: [roles, rolebindings]
+  verbs: [get, create, patch]
+# union of the rules granted by the Roles in manifests/prow/ for this namespace
+- apiGroups: [""]
+  resources: [configmaps]
+  verbs: [create, get, update]
+- apiGroups: [""]
+  resources: [events]
+  verbs: [create]
+- apiGroups: [coordination.k8s.io]
+  resources: [leases]
+  verbs: [create]
+- apiGroups: [coordination.k8s.io]
+  resources: [leases]
+  resourceNames: [prow-controller-manager-leader-lock, prow-sinker-leaderlock]
+  verbs: [get, update]
+- apiGroups: [prow.k8s.io]
+  resources: [prowjobs]
+  verbs: [create, delete, get, list, patch, update, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: prow-deployer
+  namespace: test-pods
+rules:
+- apiGroups: [rbac.authorization.k8s.io]
+  resources: [roles, rolebindings]
+  verbs: [get, create, patch]
+# union of the rules granted by the Roles in manifests/prow/ for this namespace
+- apiGroups: [""]
+  resources: [events]
+  verbs: [get, list]
+- apiGroups: [""]
+  resources: [pods]
+  verbs: [create, delete, get, list, patch, watch]
+- apiGroups: [""]
+  resources: [pods/log]
+  verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: prow-deployer
+  namespace: prow
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: prow-deployer
+subjects:
+- kind: ServiceAccount
+  name: prow-deployer
+  namespace: test-pods
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: prow-deployer
+  namespace: test-pods
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: prow-deployer
+subjects:
+- kind: ServiceAccount
+  name: prow-deployer
+  namespace: test-pods
+---
+# 00-namespace.yaml manages the (cluster-scoped) prow Namespace object.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prow-deployer
+rules:
+- apiGroups: [""]
+  resources: [namespaces]
+  resourceNames: [prow]
+  verbs: [get, patch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prow-deployer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prow-deployer
+subjects:
+- kind: ServiceAccount
+  name: prow-deployer
+  namespace: test-pods

@@ -11,201 +11,220 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  namespace: "__PROW_NAMESPACE__"
-  name: "prow-controller-manager"
+  name: prow-controller-manager
+  namespace: __PROW_NAMESPACE__
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  namespace: "__PROW_NAMESPACE__"
-  name: "prow-controller-manager"
+  name: prow-controller-manager
+  namespace: __PROW_NAMESPACE__
 rules:
-  - apiGroups:
-      - coordination.k8s.io
-    resources:
-      - leases
-    resourceNames:
-      - prow-controller-manager-leader-lock
-    verbs:
-      - get
-      - update
-  - apiGroups:
-      - coordination.k8s.io
-    resources:
-      - leases
-    verbs:
-      - create
-  - apiGroups:
-      - ""
-    resources:
-      - configmaps
-    resourceNames:
-      - prow-controller-manager-leader-lock
-    verbs:
-      - get
-      - update
-  - apiGroups:
-      - ""
-    resources:
-      - configmaps
-      - events
-    verbs:
-      - create
-  - apiGroups:
-      - prow.k8s.io
-    resources:
-      - prowjobs
-    verbs:
-      - get
-      - update
-      - list
-      - watch
-      - patch
+- apiGroups:
+  - coordination.k8s.io
+  resourceNames:
+  - prow-controller-manager-leader-lock
+  resources:
+  - leases
+  verbs:
+  - get
+  - update
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+- apiGroups:
+  - ''
+  resourceNames:
+  - prow-controller-manager-leader-lock
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - update
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  - events
+  verbs:
+  - create
+- apiGroups:
+  - prow.k8s.io
+  resources:
+  - prowjobs
+  verbs:
+  - get
+  - update
+  - list
+  - watch
+  - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  namespace: "__PROW_TESTPOD_NAMESPACE__"
-  name: "prow-controller-manager"
+  name: prow-controller-manager
+  namespace: __PROW_TESTPOD_NAMESPACE__
 rules:
-  - apiGroups:
-      - ""
-    resources:
-      - pods
-    verbs:
-      - create
-      - delete
-      - list
-      - watch
-      - get
-      - patch
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  namespace: "__PROW_NAMESPACE__"
-  name: "prow-controller-manager"
+  name: prow-controller-manager
+  namespace: __PROW_NAMESPACE__
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: "prow-controller-manager"
+  name: prow-controller-manager
 subjects:
-  - kind: ServiceAccount
-    name: "prow-controller-manager"
+- kind: ServiceAccount
+  name: prow-controller-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  namespace: "__PROW_TESTPOD_NAMESPACE__"
-  name: "prow-controller-manager"
+  name: prow-controller-manager
+  namespace: __PROW_TESTPOD_NAMESPACE__
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: "prow-controller-manager"
+  name: prow-controller-manager
 subjects:
-  - kind: ServiceAccount
-    name: "prow-controller-manager"
-    namespace: "__PROW_NAMESPACE__"
+- kind: ServiceAccount
+  name: prow-controller-manager
+  namespace: __PROW_NAMESPACE__
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: "__PROW_NAMESPACE__"
-  name: prow-controller-manager
   labels:
     app: prow-controller-manager
+  name: prow-controller-manager
+  namespace: __PROW_NAMESPACE__
 spec:
-  # Mutually exclusive with plank. Only one of them may have more than zero replicas.
   replicas: 1
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
-  revisionHistoryLimit: 2
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: prow-controller-manager
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
   template:
     metadata:
       labels:
         app: prow-controller-manager
     spec:
-      serviceAccountName: prow-controller-manager
       containers:
-        - name: prow-controller-manager
-          image: us-docker.pkg.dev/k8s-infra-prow/images/prow-controller-manager:v20260430-7dfdc18c1
-          args:
-            - --dry-run=false
-            - --enable-controller=plank
-            - --github-token-path=/etc/github/token
-            - --github-endpoint=http://ghproxy
-            - --github-endpoint=https://api.github.com
-            - --config-path=/etc/config/config.yaml
-            - --job-config-path=/etc/job-config
-            - --kubeconfig=/etc/kubeconfigs/kubeconfig
-          ports:
-            - name: metrics
-              containerPort: 9090
-          volumeMounts:
-            - name: github
-              mountPath: /etc/github
-              readOnly: true
-            - name: config
-              mountPath: /etc/config
-              readOnly: true
-            - name: job-config
-              mountPath: /etc/job-config
-              readOnly: true
-            - name: kubeconfig
-              mountPath: /etc/kubeconfigs
-              readOnly: true
-          livenessProbe: # Pod is killed if this fails 3 times.
-            httpGet:
-              path: /healthz
-              port: 8081
-            initialDelaySeconds: 10
-            periodSeconds: 5
-          readinessProbe: # Pod is not considered ready (for rolling deploy and request routing) if this fails 3 times.
-            httpGet:
-              path: /healthz/ready
-              port: 8081
-            initialDelaySeconds: 10
-            periodSeconds: 3
-      volumes:
-        - name: github
-          secret:
-            secretName: github-token
-        - name: config
-          configMap:
-            name: config
-        - name: job-config
-          configMap:
-            name: job-config
-        - name: kubeconfig
-          secret:
-            secretName: kubeconfig
+      - args:
+        - --dry-run=false
+        - --enable-controller=plank
+        - --github-app-id=$(GITHUB_APP_ID)
+        - --github-app-private-key-path=/etc/github/cert
+        - --github-endpoint=http://ghproxy
+        - --github-endpoint=https://api.github.com
+        - --config-path=/etc/config/config.yaml
+        - --job-config-path=/etc/job-config
+        - --kubeconfig=/etc/kubeconfigs/kubeconfig
+        env:
+        - name: GITHUB_APP_ID
+          valueFrom:
+            secretKeyRef:
+              key: appid
+              name: github-token
+        image: us-docker.pkg.dev/k8s-infra-prow/images/prow-controller-manager:v20260430-7dfdc18c1
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 8081
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: prow-controller-manager
+        ports:
+        - containerPort: 9090
+          name: metrics
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz/ready
+            port: 8081
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 3
+          successThreshold: 1
+          timeoutSeconds: 1
+        volumeMounts:
+        - mountPath: /etc/github
+          name: github
+          readOnly: true
+        - mountPath: /etc/config
+          name: config
+          readOnly: true
+        - mountPath: /etc/job-config
+          name: job-config
+          readOnly: true
+        - mountPath: /etc/kubeconfigs
+          name: kubeconfig
+          readOnly: true
       nodeSelector:
-        kubermatic.io/stable: "true"
+        kubermatic.io/stable: 'true'
+      serviceAccount: prow-controller-manager
+      serviceAccountName: prow-controller-manager
+      terminationGracePeriodSeconds: 30
       tolerations:
-        - key: kubermatic.io/stable
-          operator: Exists
+      - key: kubermatic.io/stable
+        operator: Exists
+      volumes:
+      - name: github
+        secret:
+          secretName: github-token
+      - configMap:
+          name: config
+        name: config
+      - configMap:
+          name: job-config
+        name: job-config
+      - name: kubeconfig
+        secret:
+          secretName: kubeconfig
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
     app: prow-controller-manager
-  namespace: "__PROW_NAMESPACE__"
   name: prow-controller-manager
+  namespace: __PROW_NAMESPACE__
 spec:
   ports:
-    - name: metrics
-      port: 9090
-      protocol: TCP
+  - name: metrics
+    port: 9090
+    protocol: TCP
+    targetPort: 9090
   selector:
     app: prow-controller-manager
+  type: ClusterIP
