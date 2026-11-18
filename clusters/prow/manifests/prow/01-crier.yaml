@@ -1,159 +1,177 @@
-kind: ServiceAccount
 apiVersion: v1
+kind: ServiceAccount
 metadata:
   name: crier
-  namespace: "__PROW_NAMESPACE__"
+  namespace: __PROW_NAMESPACE__
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  namespace: "__PROW_NAMESPACE__"
   name: crier
+  namespace: __PROW_NAMESPACE__
 rules:
-  - apiGroups:
-      - "prow.k8s.io"
-    resources:
-      - "prowjobs"
-    verbs:
-      - "get"
-      - "watch"
-      - "list"
-      - "patch"
+- apiGroups:
+  - prow.k8s.io
+  resources:
+  - prowjobs
+  verbs:
+  - get
+  - watch
+  - list
+  - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  namespace: "__PROW_TESTPOD_NAMESPACE__"
   name: crier
+  namespace: __PROW_TESTPOD_NAMESPACE__
 rules:
-  - apiGroups:
-      - ""
-    resources:
-      - "pods"
-      - "events"
-    verbs:
-      - "get"
-      - "list"
-  - apiGroups:
-      - ""
-    resources:
-      - "pods"
-    verbs:
-      - "patch"
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  - events
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: crier-namespaced
-  namespace: "__PROW_NAMESPACE__"
+  namespace: __PROW_NAMESPACE__
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: crier
 subjects:
-  - kind: ServiceAccount
-    name: crier
-    namespace: "__PROW_NAMESPACE__"
+- kind: ServiceAccount
+  name: crier
+  namespace: __PROW_NAMESPACE__
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: crier-namespaced
-  namespace: "__PROW_TESTPOD_NAMESPACE__"
+  name: crier
+  namespace: __PROW_TESTPOD_NAMESPACE__
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: crier
 subjects:
-  - kind: ServiceAccount
-    name: crier
-    namespace: "__PROW_NAMESPACE__"
+- kind: ServiceAccount
+  name: crier
+  namespace: __PROW_NAMESPACE__
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: "__PROW_NAMESPACE__"
-  name: crier
   labels:
     app: crier
+  name: crier
+  namespace: __PROW_NAMESPACE__
 spec:
   replicas: 1
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: crier
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
   template:
     metadata:
       labels:
         app: crier
     spec:
+      containers:
+      - args:
+        - --blob-storage-workers=1
+        - --config-path=/etc/config/config.yaml
+        - --github-endpoint=http://ghproxy
+        - --github-endpoint=https://api.github.com
+        - --github-app-id=$(GITHUB_APP_ID)
+        - --github-app-private-key-path=/etc/github/cert
+        - --github-workers=5
+        - --job-config-path=/etc/job-config
+        - --kubernetes-blob-storage-workers=1
+        - --s3-credentials-file=/etc/s3-credentials/service-account.json
+        - --kubeconfig=/etc/kubeconfigs/kubeconfig
+        env:
+        - name: GITHUB_APP_ID
+          valueFrom:
+            secretKeyRef:
+              key: appid
+              name: github-token
+        image: us-docker.pkg.dev/k8s-infra-prow/images/crier:v20260430-7dfdc18c1
+        imagePullPolicy: IfNotPresent
+        name: crier
+        ports:
+        - containerPort: 9090
+          name: metrics
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /etc/config
+          name: config
+          readOnly: true
+        - mountPath: /etc/job-config
+          name: job-config
+          readOnly: true
+        - mountPath: /etc/github
+          name: github
+          readOnly: true
+        - mountPath: /etc/kubeconfigs
+          name: kubeconfig
+          readOnly: true
+        - mountPath: /etc/s3-credentials
+          name: s3-credentials
+          readOnly: true
+      nodeSelector:
+        kubermatic.io/stable: 'true'
+      serviceAccount: crier
       serviceAccountName: crier
       terminationGracePeriodSeconds: 30
-      containers:
-        - name: crier
-          image: us-docker.pkg.dev/k8s-infra-prow/images/crier:v20260430-7dfdc18c1
-          args:
-            - --blob-storage-workers=1
-            - --config-path=/etc/config/config.yaml
-            - --github-endpoint=http://ghproxy
-            - --github-endpoint=https://api.github.com
-            - --github-token-path=/etc/github/token
-            - --github-workers=5
-            - --job-config-path=/etc/job-config
-            - --kubernetes-blob-storage-workers=1
-            - --s3-credentials-file=/etc/s3-credentials/service-account.json
-            - --kubeconfig=/etc/kubeconfigs/kubeconfig
-          ports:
-            - name: metrics
-              containerPort: 9090
-          volumeMounts:
-            - name: config
-              mountPath: /etc/config
-              readOnly: true
-            - name: job-config
-              mountPath: /etc/job-config
-              readOnly: true
-            - name: github
-              mountPath: /etc/github
-              readOnly: true
-            - name: kubeconfig
-              mountPath: /etc/kubeconfigs
-              readOnly: true
-            - name: s3-credentials
-              mountPath: /etc/s3-credentials
-              readOnly: true
-      volumes:
-        - name: config
-          configMap:
-            name: config
-        - name: job-config
-          configMap:
-            name: job-config
-        - name: github
-          secret:
-            secretName: github-token
-        - name: kubeconfig
-          secret:
-            secretName: kubeconfig
-        - name: s3-credentials
-          secret:
-            secretName: s3-credentials-internal
-      nodeSelector:
-        kubermatic.io/stable: "true"
       tolerations:
-        - key: kubermatic.io/stable
-          operator: Exists
+      - key: kubermatic.io/stable
+        operator: Exists
+      volumes:
+      - configMap:
+          name: config
+        name: config
+      - configMap:
+          name: job-config
+        name: job-config
+      - name: github
+        secret:
+          secretName: github-token
+      - name: kubeconfig
+        secret:
+          secretName: kubeconfig
+      - name: s3-credentials
+        secret:
+          secretName: s3-credentials-internal
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
     app: crier
-  namespace: "__PROW_NAMESPACE__"
   name: crier
+  namespace: __PROW_NAMESPACE__
 spec:
   ports:
-    - name: metrics
-      port: 9090
-      protocol: TCP
+  - name: metrics
+    port: 9090
+    protocol: TCP
+    targetPort: 9090
   selector:
     app: crier
+  type: ClusterIP

@@ -1,185 +1,202 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  namespace: "__PROW_NAMESPACE__"
-  name: "hook"
+  name: hook
+  namespace: __PROW_NAMESPACE__
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  namespace: "__PROW_NAMESPACE__"
-  name: "hook"
+  name: hook
+  namespace: __PROW_NAMESPACE__
 rules:
-  - apiGroups:
-      - "prow.k8s.io"
-    resources:
-      - prowjobs
-    verbs:
-      - create
-      - get
-      - list
-      - update
-  - apiGroups:
-      - ""
-    resources:
-      - configmaps
-    verbs:
-      - create
-      - get
-      - update
+- apiGroups:
+  - prow.k8s.io
+  resources:
+  - prowjobs
+  verbs:
+  - create
+  - get
+  - list
+  - update
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - create
+  - get
+  - update
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  namespace: "__PROW_NAMESPACE__"
-  name: "hook"
+  name: hook
+  namespace: __PROW_NAMESPACE__
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: "hook"
+  name: hook
 subjects:
-  - kind: ServiceAccount
-    name: "hook"
+- kind: ServiceAccount
+  name: hook
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: "__PROW_NAMESPACE__"
-  name: hook
   labels:
     app: hook
+  name: hook
+  namespace: __PROW_NAMESPACE__
 spec:
-  replicas: 3
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
+  replicas: 2
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: hook
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
   template:
     metadata:
       labels:
         app: hook
     spec:
+      containers:
+      - args:
+        - --dry-run=false
+        - --config-path=/etc/config/config.yaml
+        - --github-endpoint=http://ghproxy
+        - --github-endpoint=https://api.github.com
+        - --github-app-id=$(GITHUB_APP_ID)
+        - --github-app-private-key-path=/etc/github/cert
+        - --job-config-path=/etc/job-config
+        env:
+        - name: GITHUB_APP_ID
+          valueFrom:
+            secretKeyRef:
+              key: appid
+              name: github-token
+        image: us-docker.pkg.dev/k8s-infra-prow/images/hook:v20260430-7dfdc18c1
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 8081
+            scheme: HTTP
+          initialDelaySeconds: 3
+          periodSeconds: 3
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: hook
+        ports:
+        - containerPort: 8888
+          name: http
+          protocol: TCP
+        - containerPort: 9090
+          name: metrics
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz/ready
+            port: 8081
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 3
+          successThreshold: 1
+          timeoutSeconds: 1
+        volumeMounts:
+        - mountPath: /etc/webhook
+          name: hmac
+          readOnly: true
+        - mountPath: /etc/github
+          name: github
+          readOnly: true
+        - mountPath: /etc/config
+          name: config
+          readOnly: true
+        - mountPath: /etc/plugins
+          name: plugins
+          readOnly: true
+        - mountPath: /etc/job-config
+          name: job-config
+          readOnly: true
+      nodeSelector:
+        kubermatic.io/stable: 'true'
+      serviceAccount: hook
       serviceAccountName: hook
       terminationGracePeriodSeconds: 180
-      containers:
-        - name: hook
-          image: us-docker.pkg.dev/k8s-infra-prow/images/hook:v20260430-7dfdc18c1
-          imagePullPolicy: IfNotPresent
-          args:
-            - --dry-run=false
-            - --config-path=/etc/config/config.yaml
-            - --github-endpoint=http://ghproxy
-            - --github-endpoint=https://api.github.com
-            - --github-app-id=$(GITHUB_APP_ID)
-            - --github-app-private-key-path=/etc/github/cert
-            - --job-config-path=/etc/job-config
-          env:
-            - name: GITHUB_APP_ID
-              valueFrom:
-                secretKeyRef:
-                  name: github-token
-                  key: appid
-          ports:
-            - name: http
-              containerPort: 8888
-            - name: metrics
-              containerPort: 9090
-          volumeMounts:
-            - name: hmac
-              mountPath: /etc/webhook
-              readOnly: true
-            - name: github
-              mountPath: /etc/github
-              readOnly: true
-            - name: config
-              mountPath: /etc/config
-              readOnly: true
-            - name: plugins
-              mountPath: /etc/plugins
-              readOnly: true
-            - name: job-config
-              mountPath: /etc/job-config
-              readOnly: true
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: 8081
-            initialDelaySeconds: 3
-            periodSeconds: 3
-          readinessProbe:
-            httpGet:
-              path: /healthz/ready
-              port: 8081
-            initialDelaySeconds: 10
-            periodSeconds: 3
-      volumes:
-        - name: hmac
-          secret:
-            secretName: hmac-token
-        - name: github
-          secret:
-            secretName: github-token
-        - name: config
-          configMap:
-            name: config
-        - name: plugins
-          configMap:
-            name: plugins
-        - name: job-config
-          configMap:
-            name: job-config
-      nodeSelector:
-        kubermatic.io/stable: "true"
       tolerations:
-        - key: kubermatic.io/stable
-          operator: Exists
+      - key: kubermatic.io/stable
+        operator: Exists
+      volumes:
+      - name: hmac
+        secret:
+          secretName: hmac-token
+      - name: github
+        secret:
+          secretName: github-token
+      - configMap:
+          name: config
+        name: config
+      - configMap:
+          name: plugins
+        name: plugins
+      - configMap:
+          name: job-config
+        name: job-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
     app: hook
-  namespace: "__PROW_NAMESPACE__"
   name: hook
+  namespace: __PROW_NAMESPACE__
 spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - name: main
+    nodePort: 31771
+    port: 8888
+    protocol: TCP
+    targetPort: 8888
+  - name: metrics
+    nodePort: 31538
+    port: 9090
+    protocol: TCP
+    targetPort: 9090
   selector:
     app: hook
-  ports:
-    - name: main
-      port: 8888
-      protocol: TCP
-    - name: metrics
-      port: 9090
-      protocol: TCP
   type: NodePort
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: hook
-  namespace: "__PROW_NAMESPACE__"
   annotations:
-    kubernetes.io/ingress.class: nginx
-    kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: letsencrypt
-    ingress.kubernetes.io/force-ssl-redirect: "true"
+    ingress.kubernetes.io/force-ssl-redirect: 'true'
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: 'true'
+  name: hook
+  namespace: __PROW_NAMESPACE__
 spec:
-  tls:
-    - hosts:
-        - 'prow.kcp.k8c.io'
-      secretName: hook-tls
   rules:
-    - host: 'prow.kcp.k8c.io'
-      http:
-        paths:
-          - path: /hook
-            pathType: Prefix
-            backend:
-              service:
-                name: hook
-                port:
-                  number: 8888
+  - host: prow.kcp.k8c.io
+    http:
+      paths:
+      - backend:
+          service:
+            name: hook
+            port:
+              number: 8888
+        path: /hook
+        pathType: Prefix
+  tls:
+  - hosts:
+    - prow.kcp.k8c.io
+    secretName: hook-tls

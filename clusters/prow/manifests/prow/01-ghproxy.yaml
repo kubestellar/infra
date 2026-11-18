@@ -4,52 +4,62 @@ metadata:
   labels:
     app: ghproxy
   name: ghproxy
-  namespace: "__PROW_NAMESPACE__"
+  namespace: __PROW_NAMESPACE__
 spec:
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   resources:
     requests:
       storage: 100Gi
+  storageClassName: oci-bv
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ghproxy
-  namespace: "__PROW_NAMESPACE__"
   labels:
     app: ghproxy
+  name: ghproxy
+  namespace: __PROW_NAMESPACE__
 spec:
   replicas: 1
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: ghproxy
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
   template:
     metadata:
       labels:
         app: ghproxy
     spec:
       containers:
-        - name: ghproxy
-          image: us-docker.pkg.dev/k8s-infra-prow/images/ghproxy:v20260430-7dfdc18c1
-          args:
-            - --cache-dir=/cache
-            - --cache-sizeGB=99
-            - --legacy-disable-disk-cache-partitions-by-auth-header=false
-          ports:
-            - containerPort: 8888
-          volumeMounts:
-            - name: cache
-              mountPath: /cache
-      volumes:
-        - name: cache
-          persistentVolumeClaim:
-            claimName: ghproxy
+      - args:
+        - --cache-dir=/cache
+        - --cache-sizeGB=99
+        - --legacy-disable-disk-cache-partitions-by-auth-header=false
+        image: us-docker.pkg.dev/k8s-infra-prow/images/ghproxy:v20260430-7dfdc18c1
+        imagePullPolicy: IfNotPresent
+        name: ghproxy
+        ports:
+        - containerPort: 8888
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /cache
+          name: cache
       nodeSelector:
-        kubermatic.io/stable: "true"
+        kubermatic.io/stable: 'true'
+      terminationGracePeriodSeconds: 30
       tolerations:
-        - key: kubermatic.io/stable
-          operator: Exists
+      - key: kubermatic.io/stable
+        operator: Exists
+      volumes:
+      - name: cache
+        persistentVolumeClaim:
+          claimName: ghproxy
 ---
 apiVersion: v1
 kind: Service
@@ -57,11 +67,12 @@ metadata:
   labels:
     app: ghproxy
   name: ghproxy
-  namespace: "__PROW_NAMESPACE__"
+  namespace: __PROW_NAMESPACE__
 spec:
   ports:
-    - port: 80
-      protocol: TCP
-      targetPort: 8888
+  - port: 80
+    protocol: TCP
+    targetPort: 8888
   selector:
     app: ghproxy
+  type: ClusterIP
