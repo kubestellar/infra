@@ -20,8 +20,6 @@ periodics:
       # non-mutating until labels.yaml is a superset of the labels in use.
       # Dry-run mode cannot use GitHub App auth ("not requesting GitHub App
       # access_token in dry-run mode"), so it uses the token secret.
-      # kubestellar/docs is skipped: it has a label (sentinel-alert) whose
-      # description exceeds label_sync's 100 byte limit, which aborts the run.
       - image: gcr.io/k8s-prow/label_sync:v20240731-a5d9345e59
         command:
         - label_sync
@@ -29,7 +27,6 @@ periodics:
         - --config=/home/prow/go/src/github.com/kubestellar/infra/prow/labels.yaml
         - --confirm=false
         - --orgs=kubestellar
-        - --skip=kubestellar/docs
         - --github-token-path=/etc/github/token
         volumeMounts:
         - name: labelsync-token
