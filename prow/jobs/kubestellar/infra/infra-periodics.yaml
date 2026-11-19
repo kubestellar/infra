@@ -32,11 +32,11 @@ periodics:
         - --skip=kubestellar/docs
         - --github-token-path=/etc/github/token
         volumeMounts:
-        - name: github-token
+        - name: labelsync-token
           mountPath: /etc/github
           readOnly: true
       volumes:
-      - name: github-token
+      - name: labelsync-token
         secret:
           secretName: github-oauth-token
 
